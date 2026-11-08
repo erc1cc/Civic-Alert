@@ -1,0 +1,125 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Inter Tight Variable', 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Ground and ink: off-white paper, near-black ink, grey for the second half of a thought */
+  --color-ground: #f8f8f7;
+  --color-card: #ffffff;
+  --color-ink: #1a1a1a;
+  --color-ink-2: #5c5c59;   /* secondary text, 6.2:1 on ground */
+  --color-ink-3: #8a8a86;   /* headline continuation, large text only (3.3:1) */
+  --color-line: #e6e6e2;
+  --color-line-strong: #d4d4cf;
+  --color-wash: #efefec;
+  --color-night: #0d0f12;
+  --color-night-card: #16191e;
+
+  --color-success: #2f6b4a;
+  /* Errors are ink with a red mark, so red keeps meaning "Tier 1" */
+  --color-error: #1a1a1a;
+
+  /* Muted urgency ramp: only Tier 1 carries colour; the rest step down through ink and greys */
+  --color-tier-1: #b42318;
+  --color-tier-2: #1a1a1a;
+  --color-tier-3: #6b6b67;
+  --color-tier-4: #c8c8c2;
+
+  /* Call volume (heatmap): blueprint blue, never a tier colour */
+  --color-heat: #2f5ea8;
+
+  --radius-ctl: 4px;
+  --radius-card: 8px;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / .04), 0 8px 24px rgb(0 0 0 / .06);
+  --shadow-float: 0 2px 6px rgb(0 0 0 / .06), 0 16px 40px rgb(0 0 0 / .12);
+}
+
+html, body, #root { min-height: 100%; }
+body {
+  background: var(--color-ground);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  caret-color: var(--color-ink);
+}
+
+::selection { background: #1a1a1a; color: #f8f8f7; }
+* { scrollbar-width: thin; scrollbar-color: #d4d4cf transparent; }
+details > summary::-webkit-details-marker { display: none; }
+h1, h2, h3 { text-wrap: balance; font-weight: 400; }
+p, blockquote, li { text-wrap: pretty; }
+
+/* Visible keyboard focus everywhere; programmatic focus on headings stays quiet */
+:focus-visible { outline: 2px solid var(--color-ink); outline-offset: 2px; border-radius: 4px; }
+/* Headings that receive focus by code (popup titles) are landmarks, not controls: no ring */
+[data-popup-heading]:focus, [tabindex='-1']:focus:not(:focus-visible) { outline: none; }
+
+/* Display type: Inter Tight at 400 with tight tracking */
+.display { font-weight: 400; letter-spacing: -0.04em; line-height: 1.08; }
+.title { font-weight: 400; letter-spacing: -0.03em; line-height: 1.2; }
+.meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Leaflet, rebuilt in the same vocabulary */
+.leaflet-container { font-family: var(--font-sans); background: #e9e9e6; }
+.leaflet-popup-content-wrapper { border-radius: var(--radius-card); box-shadow: var(--shadow-float); padding: 0; border: 1px solid var(--color-line); }
+.leaflet-popup-content { margin: 0; width: 300px !important; }
+.leaflet-popup-tip { box-shadow: none; border: 1px solid var(--color-line); }
+.leaflet-popup-scrolled { border: 0; overscroll-behavior: contain; }
+.leaflet-container a.leaflet-popup-close-button { top: 2px; right: 2px; width: 44px; height: 44px; font: 22px/44px var(--font-sans); color: var(--color-ink-2); border-radius: 6px; }
+.leaflet-container a.leaflet-popup-close-button:hover { color: var(--color-ink); background: var(--color-wash); }
+.leaflet-touch .leaflet-bar a, .leaflet-bar a { width: 40px; height: 40px; line-height: 40px; font-size: 18px; color: var(--color-ink); background: #fff; }
+.leaflet-touch .leaflet-bar { border: 1px solid var(--color-line); border-radius: var(--radius-ctl); box-shadow: var(--shadow-card); overflow: hidden; }
+.leaflet-tooltip { font-family: var(--font-sans); font-size: 13px; border-radius: var(--radius-ctl); border-color: var(--color-line); box-shadow: var(--shadow-card); color: var(--color-ink); }
+.leaflet-control-attribution { font-size: 11px; background: rgb(248 248 247 / .85) !important; color: var(--color-ink-2); }
+.leaflet-control-attribution a { color: var(--color-ink); }
+
+/* Pins: a soft shadow lifts the light tiers off the gray basemap; tier changes fade instead of snapping */
+.pin { filter: drop-shadow(0 1px 1.5px rgb(0 0 0 / .4)); transition: fill .6s ease-out, stroke .6s ease-out; }
+
+/* A call or an approval just changed this pin */
+@keyframes pin-pulse { from { transform: scale(1); opacity: .95; stroke-width: 4px; } to { transform: scale(3.2); opacity: 0; stroke-width: 1px; } }
+.pin-pulse { transform-box: fill-box; transform-origin: center; animation: pin-pulse 1.5s cubic-bezier(.16, 1, .3, 1) 3; pointer-events: none; }
+
+/* Undo window for approvals */
+@keyframes undo-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.undo-bar { transform-origin: left; animation: undo-drain linear forwards; }
+
+/* An approved card holds its place, then folds closed (height animates, so the list never jumps) */
+@keyframes fold { 0%, 75% { grid-template-rows: 1fr; opacity: 1; } 100% { grid-template-rows: 0fr; opacity: 0; } }
+.sent-row { grid-template-rows: 1fr; animation: fold 2.4s cubic-bezier(.16, 1, .3, 1) forwards; }
+
+/* Counts flash when a call lands */
+@keyframes tick { from { background: #e6e6e2; } to { background: transparent; } }
+.num-tick { border-radius: 3px; padding: 0 2px; margin: 0 -2px; animation: tick 1.2s ease-out; }
+
+/* Transcript lines, cards and toasts arrive rather than appear */
+@keyframes rise-in { from { opacity: 0; transform: translateY(6px); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
+.transcript-line, .toast, .rise { animation: rise-in .32s cubic-bezier(.16, 1, .3, 1); }
+
+/* Landing: floating cards drift slightly so the hero reads as live */
+@keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.drift { animation: drift 7s ease-in-out infinite; }
+
+/* Landing: the halo demo tightens, holds, and loosens again */
+@keyframes halo-tighten { 0%, 12% { r: 120px; stroke-dasharray: 6 6; } 46%, 82% { r: 22px; stroke-dasharray: none; } 100% { r: 120px; stroke-dasharray: 6 6; } }
+.halo-demo { animation: halo-tighten 7s cubic-bezier(.16, 1, .3, 1) infinite; }
+
+/* Landing hero: the dark basemap is pushed down to blue-black night so the halos carry the light */
+.night-map .leaflet-tile-pane { filter: brightness(.42) contrast(1.15) sepia(.35) hue-rotate(180deg) saturate(1.6); }
+/* Keep the map (and its halos) out from behind the copy block; the masked area shows the same night ground */
+.night-map {
+  -webkit-mask-image: radial-gradient(ellipse 31% 32% at 50% 54%, transparent 78%, #000 100%);
+  mask-image: radial-gradient(ellipse 31% 32% at 50% 54%, transparent 78%, #000 100%);
+}
+@media (max-width: 767px) {
+  .night-map {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 14%, transparent 22%);
+    mask-image: linear-gradient(to bottom, #000 0%, #000 14%, transparent 22%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
