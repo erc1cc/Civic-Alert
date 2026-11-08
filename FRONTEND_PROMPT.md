@@ -5,7 +5,7 @@
 ---
 
 ## 1. Project context
-SD Voice Town Hall is a real-time civic issue tracker and Town Hall dashboard for **San Diego, CA** (UN SDGs 10, 11, 16). It uses **no GPS or hardware sensors**. Residents report issues by talking to a bilingual (English/Spanish) **ElevenLabs Conversational AI voice agent**, which works like a non-emergency 311 operator. The backend classifies each report, geocodes the landmarks the caller mentions, and merges duplicate reports. Each merge shrinks the issue's uncertainty radius, which shows that multiple callers have triangulated the spot. The dashboard updates live in front of the judges.
+SD Voice Town Hall is a real-time civic issue tracker and Town Hall dashboard for **San Diego, CA** (UN SDGs 10, 11, 16). It uses **no GPS or hardware sensors**. Residents report issues by talking to an **ElevenLabs Conversational AI voice agent**, which works like a non-emergency 311 operator. The backend classifies each report, geocodes the landmarks the caller mentions, and merges duplicate reports. Each merge shrinks the issue's uncertainty radius, which shows that multiple callers have triangulated the spot. The dashboard updates live in front of the judges.
 
 **Time limit:** it has to be demo-ready fast. Keep it simple and good-looking.
 
@@ -36,7 +36,6 @@ SD Voice Town Hall is a real-time civic issue tracker and Town Hall dashboard fo
   last_reported_at: string;   // ISO
   still_there_yes: number;
   still_there_no: number;     // >= 3 → backend marks resolved and drops it from /api/issues
-  language: "en" | "es";
   neighborhood: string;       // "North Park"
   location_label: string;     // "University Ave & 30th St"
   flagged_for_review: boolean;  // true while a Tier 1 issue awaits staff approval
@@ -59,7 +58,7 @@ SD Voice Town Hall is a real-time civic issue tracker and Town Hall dashboard fo
 | `POST /api/tools/submit-report` | see below | `{ action, issue_id, pin_code, message }` |
 
 `submit-report` body (every field optional):
-`{ conversation_id, transcript, category, problem_description, cross_street_1, cross_street_2, landmark, location_description, neighborhood, language: "en"|"es", wants_to_finish_later: bool, ended_early: bool, pin_code }`.
+`{ conversation_id, transcript, category, problem_description, cross_street_1, cross_street_2, landmark, location_description, neighborhood, wants_to_finish_later: bool, ended_early: bool, pin_code }`.
 `action` is one of `created | merged | preliminary | reopened | rejected | duplicate`. The backend classifies the category and geocodes the location from free text, so `{ "transcript": "pothole at 7th and Market" }` alone works.
 
 Use EventSource on `/api/stream` for live data. Fall back to polling `/api/issues` every 5 s if the stream errors. After any action (verify, approve, decay, report), refetch `/api/summary`, or refetch it whenever an `issues` event arrives.
@@ -94,7 +93,7 @@ Use a dark, sleek, modern style that works on a projector. A thin header shows t
     - the category, a colored "Tier N" badge, and the title
     - `"Reported 4 days ago • 17 calls"`, using relative time from `first_reported_at`
     - the location label and "± N m"
-    - up to 3 most recent descriptions in italics, tagged ES when `language === "es"`
+    - up to 3 most recent descriptions in italics
     - if preliminary, `PIN 402 — awaiting caller`
     - **"Is this issue still here?" [👍 Yes] [👎 No]**, which calls `/verify`. Show the yes/no counts. On the third "No" the backend resolves the issue, so the pin disappears live; fade it out if you can.
 - **Heatmap view:** hide every pin and circle, and render only a `leaflet.heat` layer. Weight each point by `call_count`: intensity = `min(1, call_count / 17)`, and add a few points jittered within the issue's radius so busy spots form blobs. Gradient `{0.2:'#fde047', 0.4:'#f59e0b', 0.6:'#ea580c', 0.8:'#b91c1c', 1:'#7f1d1d'}`, radius ~35, blur ~25.
@@ -103,17 +102,17 @@ Use a dark, sleek, modern style that works on a projector. A thin header shows t
 
 ### B. Town Hall sidebar (right, 30% width, scrollable)
 Top to bottom:
-1. **Voice call widget.** A large button: `🎙️ Call San Diego Voice Town Hall (EN / ES)`. It uses `@elevenlabs/react`; see section 6. While connected, show the status (Connecting / Listening / Agent speaking), a live transcript of the last few messages, and an "End call" button.
+1. **Voice call widget.** A large button: `🎙️ Call San Diego Voice Town Hall`. It uses `@elevenlabs/react`; see section 6. While connected, show the status (Connecting / Listening / Agent speaking), a live transcript of the last few messages, and an "End call" button.
    Next to it are `⏱️ Simulate 2-Week Decay` (POSTs `/api/simulate-decay`, then toasts "N issues dropped a tier, M resolved") and a small `↺ Reset demo` button (POSTs `/api/reset`).
 2. **"What to Focus On" AI executive summary card.** Render `summary.focus`. Each row shows a field label (Safety / Infrastructure / Sanitation / Lighting & Parks), the **bold headline** (e.g. "HUGE POTHOLE AT 7TH & EIGHTH — 17 calls this week"), and the neighborhood. Clicking a row flies the map to that issue.
 3. **Human-in-the-loop urgent review queue.** List issues where `status === "flagged_for_review"`, sorted by `call_count`. Each card shows the title, location, call count and time, plus an **[Approve & Forward to Crew]** button that POSTs `/approve`. Use an empty state of "✓ No hazards awaiting review".
 4. **Live feed.** Use `/api/feed` and `report` SSE events, showing the newest first: an icon per `action` (created / merged / preliminary / reopened / resolved / approved / decay / rejected), the message, and relative time. Clicking an item flies to its issue.
 5. **Text call simulator** (collapsible, labeled "No mic? Simulate a call"). This is a backup for the demo if the mic or Wi-Fi fails. It has:
-   - a textarea for a transcript, a language toggle, and checkboxes for "Caller hung up early" and "In a rush — finish later"
+   - a textarea for a transcript and checkboxes for "Caller hung up early" and "In a rush — finish later"
    - a PIN field and a Submit button that POSTs `/api/tools/submit-report`
    - preset buttons that fill the form:
      - "There's another huge pothole at 7th and Market by the parking garage" (merges into SD-101 and shrinks its radius)
-     - "El semáforo en University y la treinta está apagado" (Spanish; merges into SD-201)
+     - "The traffic light at University and 30th is completely dark" (merges into SD-201)
      - "A tree fell across the road near Chicano Park" (new Tier 1 issue that appears in the review queue)
      - "Trash dumped somewhere by Snapdragon, gotta run" with *finish later* checked (returns a PIN)
      - PIN `402` + "the sidewalk is cracked at University and Ray" (reopens a preliminary draft and shrinks it to 60 m)

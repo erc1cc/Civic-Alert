@@ -1,6 +1,6 @@
 # SD Voice Town Hall
 
-A sensorless civic issue reporting system and live Town Hall dashboard for San Diego. Residents call a bilingual ElevenLabs voice agent; the backend classifies each report, geocodes the landmarks the caller names, and clusters reports into hotspots.
+A sensorless civic issue reporting system and live Town Hall dashboard for San Diego. Residents call an ElevenLabs voice agent; the backend classifies each report, geocodes the landmarks the caller names, and clusters reports into hotspots.
 
 ## Run it
 ```bash
@@ -17,10 +17,11 @@ For frontend development with hot reload, run `npm run dev:server` and `npm run 
 ## Layout
 - `server/index.js`: Express routes, the SSE stream at `/api/stream`, and static hosting
 - `server/pipeline.js`: PIN reopen, preliminary drafts, hang-up handling, 800 m dedup with 40% radius shrinking, Tier 1 flagging, decay, and the executive summary
-- `server/categories.js`: the 23 Get It Done categories, tiers, and the EN/ES keyword classifier
+- `server/categories.js`: the 23 Get It Done categories, tiers, and the keyword classifier
 - `server/geocode.js`: San Diego landmark/intersection lookup, with Nominatim as a fallback
 - `agent/ELEVENLABS_SETUP.md`: voice agent prompt, client tool and webhook setup
 - `client/src`: React dashboard (`App.jsx`, `components/MapView.jsx`, `Sidebar.jsx`, `CallWidget.jsx`)
+- `scripts/deploy-daytona.mjs`: one-command Daytona deploy (Daytona TypeScript SDK)
 - `FRONTEND_PROMPT.md`: the spec the dashboard was built from
 
 ## Quick test

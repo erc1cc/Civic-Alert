@@ -6,6 +6,7 @@ export default function CallWidget({ toast }) {
   const [lines, setLines] = useState([]);
   const submitted = useRef(false);
   const userText = useRef([]);
+  const agentText = useRef([]);
   const convoId = useRef(null);
   const [mode, setMode] = useState(() => { try { return localStorage.getItem('sdvth-conn') || 'webrtc'; } catch { return 'webrtc'; } });
   const [level, setLevel] = useState(0);
@@ -16,6 +17,7 @@ export default function CallWidget({ toast }) {
       // The agent calls this once it has a problem + location. Its return string is spoken to the caller.
       submit_report: async (params) => {
         submitted.current = true;
+        console.info('[voice] submit_report called by agent', params);
         try {
           const r = await api.submit({ ...params, conversation_id: convoId.current || undefined, transcript: userText.current.join(' ') });
           return r.message;
@@ -27,6 +29,7 @@ export default function CallWidget({ toast }) {
     onConnect: (p) => {
       submitted.current = false;
       userText.current = [];
+      agentText.current = [];
       setLines([]);
       setHeardAnything(false);
       try { convoId.current = p?.conversationId || convo.getId(); } catch { convoId.current = null; }
@@ -34,18 +37,30 @@ export default function CallWidget({ toast }) {
     onMessage: (m) => {
       const role = m.role || m.source;
       if (role === 'user') { userText.current.push(m.message); setHeardAnything(true); }
+      else if (m.message) agentText.current.push(m.message);
       setLines((l) => [...l.slice(-5), { role, text: m.message }]);
     },
     onDisconnect: () => {
       // Case 2: caller hung up before the agent filed the report — salvage what we heard.
       const transcript = userText.current.join(' ').trim();
       if (!submitted.current && transcript.length > 8) {
-        api.submit({ transcript, ended_early: true, conversation_id: convoId.current || undefined })
-          .then((r) => r.action === 'rejected' && toast('Call ended early — not enough detail to file a report', 'rejected'))
+        // The agent's own read-backs ("so that's a pothole at 10th and Market") often hold the clearest
+        // category + location, so send its last few lines as backup context.
+        api.submit({
+          transcript, ended_early: true, conversation_id: convoId.current || undefined,
+          agent_context: agentText.current.slice(-4).join(' '),
+        })
+          .then((r) => r.action === 'rejected' && toast('Call ended before the agent filed it, and the problem or location was unclear', 'rejected'))
           .catch(() => {});
       }
     },
     onError: (e) => toast(`Voice error: ${e?.message || e}`, 'error'),
+    // Fires when the agent calls a client tool this page doesn't define, which usually means a name mismatch.
+    onUnhandledClientToolCall: (call) => {
+      const name = call?.tool_name || call?.toolName || call?.name || 'unknown';
+      console.warn('[voice] unhandled client tool call', call);
+      toast(`Agent called tool "${name}", but the page only handles "submit_report". Rename the tool in ElevenLabs.`, 'error');
+    },
   });
 
   const status = convo.status;
@@ -87,7 +102,7 @@ export default function CallWidget({ toast }) {
           className="group w-full rounded-2xl bg-gradient-to-r from-orange-600 to-red-700 px-4 py-3.5 text-left font-bold text-white shadow-lg shadow-red-950/50 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <div className="text-base">🎙️ Call San Diego Voice Town Hall</div>
-          <div className="text-xs font-medium text-orange-100/90">English / Español · no GPS needed: just describe where you are</div>
+          <div className="text-xs font-medium text-orange-100/90">No GPS needed: just describe where you are</div>
         </button>
         {!AGENT_ID && <p className="mt-1.5 text-[11px] text-gray-500">No agent configured (VITE_ELEVENLABS_AGENT_ID). Use the call simulator below.</p>}
         {AGENT_ID && (

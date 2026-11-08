@@ -26,7 +26,6 @@ function mk(id, category, title, lat, lng, radius, calls, firstDaysAgo, lastHour
     last_reported_at: new Date(now - lastHoursAgo * H).toISOString(),
     still_there_yes: opts.yes ?? Math.max(0, Math.floor(calls / 3)),
     still_there_no: opts.no ?? 0,
-    language: opts.lang ?? 'en',
     neighborhood: opts.hood,
     location_label: opts.place,
     flagged_for_review: status === 'flagged_for_review',
@@ -42,7 +41,7 @@ export function buildSeed() {
       'There is a huge pothole right at 7th and Eighth, my tire blew out last night.',
       'Pothole near the corner by the parking garage on 7th, cars are swerving into the bike lane.',
       'Big crater in the road on 7th by Market, a scooter rider almost went down.',
-      'Hay un bache enorme en la séptima, cerca del estacionamiento.',
+      'Massive pothole on 7th right by the parking structure entrance, it is getting deeper every day.',
     ], { hood: 'Downtown', place: '7th & Eighth (7th Ave & Market St)', yes: 9 }),
     mk('SD-102', 'Street Light Maintenance', 'Street lights out along Market & 10th', 32.71118, -117.15380, 120, 5, 6, 10, [
       'Whole block of Market by 10th is pitch black at night.',
@@ -65,7 +64,7 @@ export function buildSeed() {
     ], { hood: 'Gaslamp', place: '5th Ave & G St' }),
     mk('SD-107', 'Parking Violation', 'Car blocking fire hydrant at India & Date', 32.72130, -117.16900, 50, 2, 0.3, 1, [
       'A car is parked right in front of the fire hydrant at India and Date, been there all day.',
-      'Hay un carro estacionado frente al hidrante en Little Italy.',
+      'Same car still blocking the hydrant in Little Italy, a fire truck could not get in there.',
     ], { hood: 'Little Italy', place: 'India St & Date St' }),
     mk('SD-108', 'Stormwater', 'Street flooding — blocked drain near Santa Fe Depot', 32.71600, -117.17080, 200, 3, 0.5, 3, [
       'Storm drain is clogged and Broadway near the train station is flooding into the crosswalk.',
@@ -82,7 +81,7 @@ export function buildSeed() {
     mk('SD-201', 'Traffic Signal Issue', 'Dark traffic signal at University & 30th', 32.74862, -117.13018, 150, 9, 1, 1, [
       'The traffic light at University and 30th is completely dark, people are just going through.',
       'Signal is out by the North Park sign, almost got T-boned.',
-      'El semáforo en University y la treinta no funciona.',
+      'Traffic light at University and 30th is still out this morning, total chaos at rush hour.',
     ], { hood: 'North Park', place: 'University Ave & 30th St' }),
     mk('SD-202', 'Pothole', 'Deep pothole on University Ave at Texas St', 32.74860, -117.13550, 60, 6, 7, 9, [
       'Deep pothole on University at Texas, eastbound lane.',
@@ -102,14 +101,14 @@ export function buildSeed() {
     ], { hood: 'North Park', place: 'Utah St, North Park' }),
     mk('SD-207', 'Parks Issue', 'Broken playground slide at North Park Community Park', 32.75300, -117.13240, 120, 3, 2, 12, [
       'The slide at the North Park Community Park playground is broken with sharp exposed edges.',
-      'Los juegos del parque están rotos, es peligroso para los niños.',
-    ], { hood: 'North Park', place: 'North Park Community Park', lang: 'es' }),
+      'Playground equipment at the park is broken, it is dangerous for the kids.',
+    ], { hood: 'North Park', place: 'North Park Community Park' }),
     mk('SD-208', 'Illegal Dumping', 'Construction debris dumped off El Cajon & 30th', 32.75530, -117.13020, 100, 4, 4, 8, [
       'Construction debris and tires dumped in the alley off El Cajon Blvd and 30th.',
     ], { hood: 'North Park', place: 'El Cajon Blvd & 30th St' }),
     mk('SD-209', 'Sidewalk Repair Issue', 'Possible sidewalk hazard near North Park Observatory', 32.74890, -117.12970, 1000, 1, 0.2, 4, [
-      'Tengo prisa — hay algo roto en la acera cerca del Observatory, luego llamo.',
-    ], { hood: 'North Park', place: 'North Park Observatory (approx.)', status: 'preliminary', pin: '402', lang: 'es', yes: 0 }),
+      "I'm in a hurry — something's broken on the sidewalk near the Observatory, I'll call back.",
+    ], { hood: 'North Park', place: 'North Park Observatory (approx.)', status: 'preliminary', pin: '402', yes: 0 }),
 
     // ── Mission Valley ──
     mk('SD-301', 'Stormwater', 'Active flooding on Hotel Circle N', 32.76050, -117.17350, 120, 7, 0.6, 2, [
@@ -142,7 +141,7 @@ export function buildSeed() {
     // ── Pacific Beach ──
     mk('SD-401', 'Missed Collection', 'Overflowing trash cans at Crystal Pier', 32.79660, -117.25580, 80, 8, 3, 4, [
       'Trash cans at the entrance to Crystal Pier are overflowing onto the boardwalk.',
-      'Los botes de basura en el muelle están llenos, la basura se va a la arena.',
+      'Bins by the pier are full and trash is blowing onto the sand.',
     ], { hood: 'Pacific Beach', place: 'Crystal Pier' }),
     mk('SD-402', 'Graffiti - Public', 'Graffiti on lifeguard-area wall at Garnet & Mission', 32.79730, -117.25360, 50, 4, 6, 28, [
       'Graffiti on the public wall at Garnet and Mission Blvd.',
@@ -157,8 +156,8 @@ export function buildSeed() {
       'Dead cat on Grand Ave at Lamont, in the bike lane.',
     ], { hood: 'Pacific Beach', place: 'Grand Ave & Lamont St' }),
     mk('SD-406', 'ADA Compliance', 'Broken curb ramp at Garnet & Cass', 32.79760, -117.25060, 50, 2, 8, 45, [
-      'La rampa de la banqueta en Garnet y Cass está rota, mi silla de ruedas no puede subir.',
-    ], { hood: 'Pacific Beach', place: 'Garnet Ave & Cass St', lang: 'es' }),
+      'The curb ramp at Garnet and Cass is broken, my wheelchair cannot get up onto the sidewalk.',
+    ], { hood: 'Pacific Beach', place: 'Garnet Ave & Cass St' }),
     mk('SD-407', 'Street Light Maintenance', 'Street light out at Mission Blvd & Hornblend', 32.79950, -117.25330, 50, 3, 4, 19, [
       'The street light at Mission and Hornblend is out, really dark by the bars at closing.',
     ], { hood: 'Pacific Beach', place: 'Mission Blvd & Hornblend St' }),

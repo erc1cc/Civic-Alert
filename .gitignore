@@ -5,3 +5,4 @@ server/data/issues.json
 .env
 .DS_Store
 .env
+.daytona-sandbox

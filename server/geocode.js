@@ -8,18 +8,19 @@ const ORDINALS = {
   first: '1st', second: '2nd', third: '3rd', fourth: '4th', fifth: '5th', sixth: '6th', seventh: '7th',
   eighth: '8th', ninth: '9th', tenth: '10th', eleventh: '11th', twelfth: '12th', fourteenth: '14th',
   sixteenth: '16th', twentieth: '20th', thirtieth: '30th', 'thirty second': '32nd',
-  primera: '1st', quinta: '5th', septima: '7th', octava: '8th', treinta: '30th',
 };
 
 export function normalize(text) {
-  let t = ' ' + strip(text).replace(/[,.;:!?¿¡"()]/g, ' ') + ' ';
+  let t = ' ' + strip(text).replace(/[,.;:!?"()]/g, ' ') + ' ';
   for (const [w, n] of Object.entries(ORDINALS)) t = t.replace(new RegExp(` ${w} `, 'g'), ` ${n} `);
   t = t
-    .replace(/ (and|y|at|con|esquina|corner of|cross of|with) /g, ' & ')
-    .replace(/ (street|calle) /g, ' st ')
-    .replace(/ (avenue|avenida) /g, ' ave ')
-    .replace(/ (boulevard|bulevar) /g, ' blvd ')
+    .replace(/ (and|at|corner of|cross of|with) /g, ' & ')
+    .replace(/ (street) /g, ' st ')
+    .replace(/ (avenue) /g, ' ave ')
+    .replace(/ (boulevard) /g, ' blvd ')
     .replace(/ (drive) /g, ' dr ')
+    .replace(/ (highway|hiway) /g, ' hwy ')
+    .replace(/ (road) /g, ' rd ')
     .replace(/\s+/g, ' ');
   return t;
 }
@@ -36,16 +37,16 @@ const G = [
   { label: 'India St & Date St', hood: 'Little Italy', kind: 'intersection', lat: 32.72130, lng: -117.16900, streets: ['india', 'date'] },
   { label: '11th Ave & Island Ave', hood: 'East Village', kind: 'intersection', lat: 32.71010, lng: -117.15270, streets: ['11th', 'island'] },
   { label: 'Broadway & 2nd Ave', hood: 'Downtown', kind: 'intersection', lat: 32.71550, lng: -117.16360, streets: ['broadway', '2nd'] },
-  { label: 'Broadway & Pacific Hwy', hood: 'Downtown', kind: 'intersection', lat: 32.71580, lng: -117.17120, streets: ['broadway', 'pacific h'] },
+  { label: 'Broadway & Pacific Hwy', hood: 'Downtown', kind: 'intersection', lat: 32.71580, lng: -117.17120, streets: ['broadway', 'pacific hwy'] },
   { label: 'Petco Park', hood: 'East Village', kind: 'landmark', radius: 250, lat: 32.70730, lng: -117.15660, keys: ['petco', 'padres stadium', 'ballpark'] },
   { label: 'City College', hood: 'East Village', kind: 'landmark', radius: 300, lat: 32.71780, lng: -117.15300, keys: ['city college'] },
-  { label: 'Santa Fe Depot', hood: 'Downtown', kind: 'landmark', radius: 250, lat: 32.71680, lng: -117.16950, keys: ['santa fe depot', 'train station', 'estacion de tren'] },
+  { label: 'Santa Fe Depot', hood: 'Downtown', kind: 'landmark', radius: 250, lat: 32.71680, lng: -117.16950, keys: ['santa fe depot', 'train station'] },
   { label: 'Horton Plaza', hood: 'Gaslamp', kind: 'landmark', radius: 250, lat: 32.71340, lng: -117.16170, keys: ['horton plaza', 'horton'] },
   { label: 'Gaslamp Quarter', hood: 'Gaslamp', kind: 'landmark', radius: 400, lat: 32.71150, lng: -117.16000, keys: ['gaslamp'] },
-  { label: 'Convention Center', hood: 'Downtown', kind: 'landmark', radius: 400, lat: 32.70640, lng: -117.16190, keys: ['convention center', 'centro de convenciones'] },
+  { label: 'Convention Center', hood: 'Downtown', kind: 'landmark', radius: 400, lat: 32.70640, lng: -117.16190, keys: ['convention center'] },
   { label: 'Little Italy', hood: 'Little Italy', kind: 'neighborhood', lat: 32.72300, lng: -117.16850, keys: ['little italy'] },
   { label: 'East Village', hood: 'East Village', kind: 'neighborhood', lat: 32.71100, lng: -117.15300, keys: ['east village'] },
-  { label: 'Downtown San Diego', hood: 'Downtown', kind: 'neighborhood', lat: 32.71570, lng: -117.16110, keys: ['downtown', 'centro'] },
+  { label: 'Downtown San Diego', hood: 'Downtown', kind: 'neighborhood', lat: 32.71570, lng: -117.16110, keys: ['downtown'] },
   // ── North Park / Hillcrest ──
   { label: 'University Ave & 30th St', hood: 'North Park', kind: 'intersection', lat: 32.74862, lng: -117.13018, streets: ['university', '30th'] },
   { label: 'University Ave & Texas St', hood: 'North Park', kind: 'intersection', lat: 32.74860, lng: -117.13550, streets: ['university', 'texas'] },
@@ -70,11 +71,11 @@ const G = [
   { label: 'Texas St & Camino del Rio S', hood: 'Mission Valley', kind: 'intersection', lat: 32.76170, lng: -117.13730, streets: ['texas', 'camino del rio'] },
   { label: 'Fashion Valley Mall', hood: 'Mission Valley', kind: 'landmark', radius: 300, lat: 32.76780, lng: -117.16750, keys: ['fashion valley'] },
   { label: 'Westfield Mission Valley', hood: 'Mission Valley', kind: 'landmark', radius: 300, lat: 32.76800, lng: -117.15200, keys: ['westfield', 'mission valley mall', 'target in mission valley'] },
-  { label: 'Snapdragon Stadium', hood: 'Mission Valley', kind: 'landmark', radius: 400, lat: 32.78310, lng: -117.11960, keys: ['snapdragon', 'qualcomm stadium', 'sdsu stadium', 'estadio'] },
+  { label: 'Snapdragon Stadium', hood: 'Mission Valley', kind: 'landmark', radius: 400, lat: 32.78310, lng: -117.11960, keys: ['snapdragon', 'qualcomm stadium', 'sdsu stadium'] },
   { label: 'San Diego River Trail @ Qualcomm Way', hood: 'Mission Valley', kind: 'landmark', radius: 350, lat: 32.76600, lng: -117.13800, keys: ['river trail', 'san diego river', 'qualcomm way', 'rio san diego'] },
   { label: 'Mission Valley', hood: 'Mission Valley', kind: 'neighborhood', lat: 32.76900, lng: -117.15500, keys: ['mission valley'] },
   // ── Pacific Beach ──
-  { label: 'Crystal Pier', hood: 'Pacific Beach', kind: 'landmark', radius: 150, lat: 32.79660, lng: -117.25580, keys: ['crystal pier', 'the pier', 'el muelle', 'muelle'] },
+  { label: 'Crystal Pier', hood: 'Pacific Beach', kind: 'landmark', radius: 150, lat: 32.79660, lng: -117.25580, keys: ['crystal pier', 'the pier'] },
   { label: 'Garnet Ave & Mission Blvd', hood: 'Pacific Beach', kind: 'intersection', lat: 32.79730, lng: -117.25360, streets: ['garnet', 'mission blvd'] },
   { label: 'Garnet Ave & Ingraham St', hood: 'Pacific Beach', kind: 'intersection', lat: 32.79830, lng: -117.24200, streets: ['garnet', 'ingraham'] },
   { label: 'Garnet Ave & Cass St', hood: 'Pacific Beach', kind: 'intersection', lat: 32.79760, lng: -117.25060, streets: ['garnet', 'cass'] },
@@ -85,6 +86,25 @@ const G = [
   { label: 'Kate Sessions Park', hood: 'Pacific Beach', kind: 'landmark', radius: 300, lat: 32.80770, lng: -117.24000, keys: ['kate sessions'] },
   { label: 'Garnet Ave (Pacific Beach)', hood: 'Pacific Beach', kind: 'street', lat: 32.79800, lng: -117.24600, keys: ['garnet'] },
   { label: 'Pacific Beach', hood: 'Pacific Beach', kind: 'neighborhood', lat: 32.79700, lng: -117.24000, keys: ['pacific beach', ' pb '] },
+  // ── Single streets (vague → 1 km), used when no intersection/landmark matched ──
+  { label: 'Broadway (Downtown)', hood: 'Downtown', kind: 'street', lat: 32.71550, lng: -117.15900, keys: ['broadway'] },
+  { label: 'Market St (Downtown)', hood: 'Downtown', kind: 'street', lat: 32.71118, lng: -117.15600, keys: ['market st', 'market'] },
+  { label: 'Imperial Ave', hood: 'East Village', kind: 'street', lat: 32.70660, lng: -117.15000, keys: ['imperial'] },
+  { label: 'Harbor Dr', hood: 'Downtown', kind: 'street', lat: 32.70900, lng: -117.16900, keys: ['harbor dr', 'harbor'] },
+  { label: 'Pacific Hwy', hood: 'Downtown', kind: 'street', lat: 32.71900, lng: -117.17100, keys: ['pacific hwy'] },
+  { label: '10th Ave (Downtown)', hood: 'East Village', kind: 'street', lat: 32.71300, lng: -117.15380, keys: ['10th'] },
+  { label: '7th Ave (Downtown)', hood: 'Downtown', kind: 'street', lat: 32.71300, lng: -117.15741, keys: ['7th'] },
+  { label: '5th Ave (Gaslamp)', hood: 'Gaslamp', kind: 'street', lat: 32.71300, lng: -117.16000, keys: ['5th'] },
+  { label: 'India St (Little Italy)', hood: 'Little Italy', kind: 'street', lat: 32.72300, lng: -117.16900, keys: ['india st'] },
+  { label: 'Park Blvd', hood: 'Hillcrest', kind: 'street', lat: 32.74000, lng: -117.14700, keys: ['park blvd'] },
+  { label: '30th St (North Park)', hood: 'North Park', kind: 'street', lat: 32.74860, lng: -117.13020, keys: ['30th'] },
+  { label: 'El Cajon Blvd', hood: 'North Park', kind: 'street', lat: 32.75530, lng: -117.12500, keys: ['el cajon'] },
+  { label: 'Adams Ave', hood: 'Normal Heights', kind: 'street', lat: 32.76300, lng: -117.12000, keys: ['adams ave'] },
+  { label: 'Friars Rd', hood: 'Mission Valley', kind: 'street', lat: 32.77030, lng: -117.15000, keys: ['friars'] },
+  { label: 'Mission Center Rd', hood: 'Mission Valley', kind: 'street', lat: 32.76800, lng: -117.15470, keys: ['mission center'] },
+  { label: 'Mission Blvd (Pacific Beach)', hood: 'Pacific Beach', kind: 'street', lat: 32.79500, lng: -117.25400, keys: ['mission blvd'] },
+  { label: 'Ingraham St', hood: 'Pacific Beach', kind: 'street', lat: 32.79300, lng: -117.24200, keys: ['ingraham'] },
+  { label: 'Grand Ave (Pacific Beach)', hood: 'Pacific Beach', kind: 'street', lat: 32.79450, lng: -117.24500, keys: ['grand ave'] },
   // ── Elsewhere ──
   { label: 'Chicano Park', hood: 'Barrio Logan', kind: 'landmark', radius: 250, lat: 32.70030, lng: -117.14250, keys: ['chicano park', 'barrio logan'] },
   { label: 'Old Town', hood: 'Old Town', kind: 'landmark', radius: 500, lat: 32.75430, lng: -117.19770, keys: ['old town'] },

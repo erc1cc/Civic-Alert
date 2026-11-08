@@ -86,16 +86,16 @@ function LiveFeed({ feed, flyTo }) {
 
 const PRESETS = [
   { label: '🎯 Merge: pothole at 7th & Market', transcript: "There's another huge pothole at 7th and Market by the parking garage" },
-  { label: '🇲🇽 Semáforo apagado (ES)', transcript: 'El semáforo en University y la treinta está apagado', language: 'es' },
+  { label: '🚦 Dark signal at University & 30th', transcript: 'The traffic light at University and 30th is completely dark, cars are just driving through' },
   { label: '🌳 New Tier 1: tree down', transcript: 'A tree fell across the road near Chicano Park' },
   { label: '📝 In a rush → PIN', transcript: 'Trash dumped somewhere by Snapdragon, gotta run', later: true },
-  { label: '🔓 Return with PIN 402', transcript: 'The sidewalk is cracked at University and Ray', pin: '402', language: 'es' },
+  { label: '🔓 Return with PIN 402', transcript: 'The sidewalk is cracked at University and Ray', pin: '402' },
   { label: '📵 Hung up early', transcript: 'There is a dead dog near Ocean Beach and', early: true },
 ];
 
 function Simulator({ toast }) {
   const [open, setOpen] = useState(false);
-  const [f, setF] = useState({ transcript: '', language: 'en', early: false, later: false, pin: '' });
+  const [f, setF] = useState({ transcript: '', early: false, later: false, pin: '' });
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setF((s) => ({ ...s, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }));
@@ -106,7 +106,7 @@ function Simulator({ toast }) {
     setBusy(true);
     try {
       const r = await api.submit({
-        transcript: f.transcript, language: f.language, ended_early: f.early,
+        transcript: f.transcript, ended_early: f.early,
         wants_to_finish_later: f.later, pin_code: f.pin || undefined,
         conversation_id: `sim-${Date.now()}`,
       });
@@ -126,7 +126,7 @@ function Simulator({ toast }) {
           <div className="flex flex-wrap gap-1.5">
             {PRESETS.map((p) => (
               <button type="button" key={p.label}
-                onClick={() => { setResult(null); setF({ transcript: p.transcript, language: p.language || 'en', early: !!p.early, later: !!p.later, pin: p.pin || '' }); }}
+                onClick={() => { setResult(null); setF({ transcript: p.transcript, early: !!p.early, later: !!p.later, pin: p.pin || '' }); }}
                 className="rounded-full border border-gray-700 bg-gray-900 px-2.5 py-1 text-[11px] text-gray-300 hover:border-gray-500 hover:text-white">
                 {p.label}
               </button>
@@ -135,12 +135,6 @@ function Simulator({ toast }) {
           <textarea value={f.transcript} onChange={set('transcript')} rows={3} placeholder="What the caller says…"
             className="w-full rounded-lg border border-gray-700 bg-gray-950 p-2 text-sm text-gray-100 placeholder:text-gray-600 focus:border-orange-500 focus:outline-none" />
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-300">
-            <div className="flex overflow-hidden rounded-md border border-gray-700">
-              {['en', 'es'].map((l) => (
-                <button type="button" key={l} onClick={() => setF((s) => ({ ...s, language: l }))}
-                  className={`px-2.5 py-1 font-semibold uppercase ${f.language === l ? 'bg-gray-200 text-gray-900' : 'text-gray-400'}`}>{l}</button>
-              ))}
-            </div>
             <label className="flex items-center gap-1.5"><input type="checkbox" checked={f.early} onChange={set('early')} className="accent-orange-500" /> Hung up early</label>
             <label className="flex items-center gap-1.5"><input type="checkbox" checked={f.later} onChange={set('later')} className="accent-orange-500" /> In a rush, finish later</label>
             <input value={f.pin} onChange={set('pin')} placeholder="PIN" maxLength={3}

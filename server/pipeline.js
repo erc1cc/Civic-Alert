@@ -26,7 +26,7 @@ export function distanceM(a, b) {
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
-const truthy = (v) => v === true || ['true', 'yes', 'si', 'sí', '1'].includes(String(v ?? '').toLowerCase().trim());
+const truthy = (v) => v === true || ['true', 'yes', '1'].includes(String(v ?? '').toLowerCase().trim());
 const str = (v) => (v == null ? '' : typeof v === 'object' ? String(v.value ?? '') : String(v)).trim();
 
 /**
@@ -34,7 +34,7 @@ const str = (v) => (v == null ? '' : typeof v === 'object' ? String(v.value ?? '
  *   { type: 'post_call_transcription', data: { conversation_id, transcript: [{role, message}], analysis: { data_collection_results } } }
  * or a flat payload from a client/server tool:
  *   { conversation_id, transcript, category, problem_description, location_description, cross_street_1,
- *     cross_street_2, landmark, neighborhood, language, ended_early, wants_to_finish_later, pin_code }
+ *     cross_street_2, landmark, neighborhood, ended_early, wants_to_finish_later, pin_code }
  */
 export function normalizePayload(body = {}) {
   const d = body.data && (body.type || body.data.transcript) ? body.data : body;
@@ -48,15 +48,16 @@ export function normalizePayload(body = {}) {
 
   const cross = [pick('cross_street_1'), pick('cross_street_2')].filter(Boolean).join(' & ');
   const description = pick('problem_description') || str(d.analysis?.transcript_summary) || userText;
-  const lang = (pick('language') || d.metadata?.language || d.conversation_initiation_client_data?.conversation_config_override?.agent?.language || 'en').toLowerCase();
+
+  const agentContext = str(d.agent_context);
 
   return {
     conversation_id: str(d.conversation_id) || null,
+    agentContext,
     category: pick('category'),
     description: description.slice(0, 400),
     fullText: [description, userText, pick('location_description'), pick('landmark')].join(' '),
     locationCandidates: [cross, pick('landmark'), pick('location_description'), pick('neighborhood'), userText].filter(Boolean),
-    language: lang.startsWith('es') ? 'es' : 'en',
     ended_early: truthy(d.ended_early ?? dc.ended_early) || d.analysis?.call_successful === 'failure',
     wants_later: truthy(d.wants_to_finish_later ?? dc.wants_to_finish_later),
     pin_code: (pick('pin_code').match(/\d{3}/) || [null])[0],
@@ -80,7 +81,7 @@ function statusForTier(tier, forwarded) {
   return tier === 1 && !forwarded ? 'flagged_for_review' : 'active';
 }
 
-function newIssue({ category, tier, title, desc, geo, radius, status, language, pin, convo }) {
+function newIssue({ category, tier, title, desc, geo, radius, status, pin, convo }) {
   const now = new Date().toISOString();
   return store.add({
     id: store.nextId(),
@@ -98,7 +99,6 @@ function newIssue({ category, tier, title, desc, geo, radius, status, language, 
     last_reported_at: now,
     still_there_yes: 0,
     still_there_no: 0,
-    language,
     neighborhood: geo.neighborhood || '',
     location_label: geo.label || '',
     flagged_for_review: status === 'flagged_for_review',
@@ -107,14 +107,11 @@ function newIssue({ category, tier, title, desc, geo, radius, status, language, 
   });
 }
 
-const speakPin = (pin, lang) => (lang === 'es'
-  ? `Su código es ${pin.split('').join('-')}. Llame de nuevo y diga este código para terminar su reporte.`
-  : `Your PIN is ${pin.split('').join('-')}. Call back and say this PIN to finish your report.`);
+const speakPin = (pin) => `Your PIN is ${pin.split('').join('-')}. Call back and say this PIN to finish your report.`;
 
 /** Main entry point. Returns { action, issue, pin_code?, message }. */
 export async function processReport(body) {
   const r = normalizePayload(body);
-  const es = r.language === 'es';
 
   // Idempotency: the client tool and the post-call webhook may both report the same conversation.
   if (r.conversation_id) {
@@ -122,8 +119,13 @@ export async function processReport(body) {
     if (seen) return { action: 'duplicate', issue: seen, message: 'This conversation was already recorded.' };
   }
 
-  const category = matchCategory(r.category) || classifyText(r.fullText)?.category || null;
-  const geo = await locate(r.locationCandidates);
+  let category = matchCategory(r.category) || classifyText(r.fullText)?.category || null;
+  let geo = await locate(r.locationCandidates);
+  // Hang-up fallback: the agent's read-backs often restate the problem and place more clearly.
+  if (r.agentContext) {
+    if (!category) category = classifyText(r.agentContext)?.category || null;
+    if (!geo) geo = await locate([r.agentContext]);
+  }
 
   // ── Case 3b: caller returns with a PIN → reopen the preliminary draft ──
   if (r.pin_code) {
@@ -142,7 +144,7 @@ export async function processReport(body) {
       if (r.conversation_id) draft.conversation_ids.push(r.conversation_id);
       store.save();
       log({ action: 'reopened', issue_id: draft.id, message: `PIN ${r.pin_code} reopened ${draft.id} — pinpointed to 60 m` });
-      return { action: 'reopened', issue: draft, message: es ? `Gracias, completamos su reporte ${draft.id}.` : `Thanks — your report ${draft.id} is now complete and on the map.` };
+      return { action: 'reopened', issue: draft, message: `Thanks — your report ${draft.id} is now complete and on the map.` };
     }
   }
 
@@ -154,16 +156,19 @@ export async function processReport(body) {
     const pin = store.newPin();
     const issue = newIssue({
       category: cat, tier: tierFor(cat, r.fullText), title: titleFor(cat, `${g.label} (approx.)`, r.fullText),
-      desc: r.description, geo: g, radius: 1000, status: 'preliminary', language: r.language, pin, convo: r.conversation_id,
+      desc: r.description, geo: g, radius: 1000, status: 'preliminary', pin, convo: r.conversation_id,
     });
     store.save();
     log({ action: 'preliminary', issue_id: issue.id, message: `Preliminary draft ${issue.id} saved with PIN ${pin}` });
-    return { action: 'preliminary', issue, pin_code: pin, message: speakPin(pin, r.language) };
+    return { action: 'preliminary', issue, pin_code: pin, message: speakPin(pin) };
   }
 
   // ── Case 2: hung up early with too little info → discard ──
   if (!category || !geo) {
-    log({ action: 'rejected', issue_id: null, message: 'Call ended early without a usable location + problem type' });
+    const missing = [!category && 'problem type', !geo && 'location'].filter(Boolean).join(' + ');
+    const heard = r.description.slice(0, 90);
+    console.log(`[pipeline] rejected (missing ${missing}): ${r.description}`);
+    log({ action: 'rejected', issue_id: null, message: `Call ended early, missing ${missing}${heard ? ` — heard: “${heard}${r.description.length > 90 ? '…' : ''}”` : ''}` });
     return { action: 'rejected', issue: null, message: 'Not enough information to file a report.' };
   }
 
@@ -197,21 +202,20 @@ export async function processReport(body) {
     log({ action: 'merged', issue_id: match.id, message: msg, radius_before: before, radius_after: match.uncertainty_radius_meters });
     return {
       action: 'merged', issue: match,
-      message: es ? `Gracias. Otras ${match.call_count - 1} personas ya reportaron esto; su llamada nos ayudó a ubicarlo mejor.`
-        : `Thanks — ${match.call_count - 1} other residents already reported this, and your call helped us pinpoint it.`,
+      message: `Thanks — ${match.call_count - 1} other residents already reported this, and your call helped us pinpoint it.`,
     };
   }
 
   const status = statusForTier(tier, false);
   const issue = newIssue({
     category, tier, title: titleFor(category, geo.label, r.fullText), desc: r.description, geo, radius, status,
-    language: r.language, convo: r.conversation_id,
+    convo: r.conversation_id,
   });
   store.save();
   log({ action: 'created', issue_id: issue.id, message: `New ${category} (Tier ${tier}) ${issue.id}${status === 'flagged_for_review' ? ' — flagged for review' : ''}${r.ended_early ? ' — caller hung up, wide radius' : ''}` });
   return {
     action: 'created', issue,
-    message: es ? `Gracias, su reporte ${issue.id} fue registrado.` : `Thanks — your report ${issue.id} has been filed with the City.`,
+    message: `Thanks — your report ${issue.id} has been filed with the City.`,
   };
 }
 

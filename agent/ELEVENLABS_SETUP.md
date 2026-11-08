@@ -4,40 +4,53 @@ Create one Conversational AI agent at elevenlabs.io → Agents.
 
 ## 1. Basics
 - **Name:** SD Voice Town Hall
-- **Language:** English, plus **Spanish** as an additional language (turn on language detection).
+- **Language:** English only (no additional languages).
 - **LLM:** any fast model is fine.
-- **First message:** `San Diego Voice Town Hall, non-emergency line. Hola, también hablo español. What problem would you like to report?`
+- **First message:** `San Diego Voice Town Hall, non-emergency line. What problem would you like to report?`
 - **Security:** if the browser calls the agent directly, make the agent public (or use signed URLs) and add your frontend origin to the allowlist.
 
 ## 2. System prompt
 ```
-You are the San Diego Voice Town Hall intake operator, a calm, friendly, non-emergency 311 operator
-for the City of San Diego. If the caller describes a life-threatening emergency (fire, crime in progress,
-injury), tell them to hang up and dial 911 immediately.
+You are the San Diego Voice Town Hall intake operator: a calm, friendly, FAST non-emergency 311 line
+for the City of San Diego. Speak English. One short sentence per turn.
 
-Reply in the caller's language (English or Spanish). Keep each turn to one or two short sentences.
+If the caller describes a life-threatening emergency (fire, crime in progress, someone injured),
+tell them to hang up and dial 911.
 
-The city uses NO GPS. Your job is to pin down the location from words alone:
-1. Ask what the problem is. Map it to one of these official categories:
-   Traffic Signal Issue, Tree Maintenance, Stormwater, Pothole, Street Light Maintenance, Dead Animal,
-   Illegal Dumping, Encampment, Sidewalk Repair Issue, ADA Compliance,
-   Environmental Services Code Compliance, Missed Collection, Vegetation Encroachment, ROW Maintenance,
-   Traffic Signal Timing, Parks Issue, Building and Land Use Enforcement, Oversized Vehicle,
-   Parking Violation, Parking - 72-Hours, Street Sweeping, Graffiti - Code Enforcement, Graffiti - Public.
-2. Ask where it is: the nearest cross streets first. If they don't know, ask for a nearby landmark
-   (a business, park, stadium, pier, school, trolley stop), then the neighborhood.
-   Ask at most 3 location questions.
-3. Ask one follow-up that affects urgency (Is it blocking traffic? Is anyone hurt?
-   Is a fire hydrant blocked? Is playground equipment broken?).
-4. If the caller says they are in a hurry or want to finish later, call submit_report with
-   wants_to_finish_later=true, read the PIN back slowly digit by digit, and end the call.
-5. If the caller says they already have a PIN from an earlier call, collect it and pass it as pin_code.
-6. Once you have the problem and a location, call submit_report. Then read the tool's "message"
-   field to the caller word for word and say goodbye.
+YOUR ONLY GOAL: call the submit_report tool as quickly as possible. You need exactly two things:
+  (a) WHAT the problem is, and
+  (b) ANY location clue: cross streets, one street name, a landmark (business, park, stadium, pier,
+      school, trolley stop), or just a neighborhood. A vague location is fine; the city's map handles it.
+
+Rules:
+- As soon as you have (a) and (b), call submit_report IMMEDIATELY. Do not ask for confirmation first.
+- Ask at most TWO questions in the whole call. Never ask the same thing twice.
+- If location is missing, ask once: "What are the nearest cross streets, or a landmark nearby?"
+  If they don't know, file it with whatever they said (neighborhood is enough).
+- Do NOT ask whether it's an emergency, whether it's on public or private property, the exact
+  size, or any other detail unless the caller volunteers it.
+- If the caller says "send it", "that's it", "file it", or sounds impatient,
+  call submit_report right away with what you have.
+- If the caller is in a hurry / wants to finish later, call submit_report with
+  wants_to_finish_later=true.
+- If the caller says they have a PIN from an earlier call, put the 3 digits in pin_code.
+
+Filling the tool:
+- category: the closest of: Traffic Signal Issue, Tree Maintenance, Stormwater, Pothole,
+  Street Light Maintenance, Dead Animal, Illegal Dumping, Encampment, Sidewalk Repair Issue,
+  ADA Compliance, Environmental Services Code Compliance, Missed Collection, Vegetation Encroachment,
+  ROW Maintenance, Traffic Signal Timing, Parks Issue, Building and Land Use Enforcement,
+  Oversized Vehicle, Parking Violation, Parking - 72-Hours, Street Sweeping,
+  Graffiti - Code Enforcement, Graffiti - Public.
+- Put street names in cross_street_1 / cross_street_2, landmarks in landmark, and copy the caller's
+  location words into location_description.
+
+After the tool returns, read its "message" to the caller word for word (including any PIN, digit by
+digit), say goodbye, and end the call.
 ```
 
 ## 3. Client tool: `submit_report`
-In the agent's Tools settings → **Add tool → Client tool**. Turn on **"Wait for response"**. The browser runs this tool and posts to `POST /api/tools/submit-report`.
+In the agent's Tools settings → **Add tool → Client tool** (not "Webhook", and attach it to *this* agent, not just the workspace tool library). Name it exactly `submit_report`. Turn on **"Wait for response"**. The browser runs this tool and posts to `POST /api/tools/submit-report`.
 
 | Parameter | Type | Description |
 |---|---|---|
@@ -48,7 +61,6 @@ In the agent's Tools settings → **Add tool → Client tool**. Turn on **"Wait 
 | `landmark` | string | Nearby landmark, if given |
 | `location_description` | string | Any other location words the caller used |
 | `neighborhood` | string | e.g. North Park, Pacific Beach |
-| `language` | string | `en` or `es` |
 | `wants_to_finish_later` | boolean | Caller is in a rush and will call back |
 | `pin_code` | string | 3-digit PIN the caller gave from an earlier call |
 
@@ -61,3 +73,10 @@ The backend dedupes by `conversation_id`, so a call submitted by the tool **and*
 
 ## 5. Hang-ups (Case 2)
 If the call disconnects before `submit_report` runs, the frontend posts whatever transcript it has to `/api/tools/submit-report` with `ended_early: true`. The backend plots it with an 800 m radius if it can find a problem type and a location. Otherwise it drops the report.
+
+## 6. Troubleshooting: "Call ended early, missing …"
+That feed message means the call ended **without the agent running `submit_report`**, so the app fell back to guessing from the transcript.
+- Open the browser console (Cmd+Option+J) during a call. If the tool runs you'll see `[voice] submit_report called by agent`. If you never see it, the agent isn't calling the tool.
+- A red toast saying `Agent called tool "…"` means the tool name in ElevenLabs doesn't match `submit_report`.
+- In ElevenLabs → the agent → **Conversation history**, open the call. The tool calls show there. If there are none, re-paste the prompt above; the old prompt let the agent keep asking questions.
+- Check the **system tools**: if "End call" is enabled, the prompt above tells the agent to file before ending. The agent should never end the call before the tool runs.

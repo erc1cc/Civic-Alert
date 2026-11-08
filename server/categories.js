@@ -33,31 +33,31 @@ export const CATEGORIES = {
   'Graffiti - Public': { tier: 4, group: 'sanitation', short: 'Graffiti', dept: 'Transportation' },
 };
 
-// Keyword rules (English + Spanish). Order matters for ties: more specific first.
+// Keyword rules. Order matters for ties: more specific first.
 const RULES = [
-  ['Traffic Signal Timing', ['signal timing', 'light takes forever', 'red light too long', 'green too short', 'timing', 'tarda mucho', 'semaforo tarda']],
-  ['Traffic Signal Issue', ['traffic light', 'traffic signal', 'signal is out', 'signal out', 'light is out at the intersection', 'stoplight', 'stop light', 'signal dark', 'flashing red', 'semaforo', 'semáforo']],
-  ['Street Light Maintenance', ['street light', 'streetlight', 'lamp post', 'light pole', 'dark street', 'lights are out', 'alumbrado', 'farola', 'poste de luz', 'lampara']],
-  ['Pothole', ['pothole', 'pot hole', 'hole in the road', 'crater', 'sinkhole', 'bache', 'hoyo']],
-  ['Tree Maintenance', ['tree', 'limb', 'branch', 'fallen palm', 'palm frond', 'arbol', 'árbol', 'rama']],
-  ['Stormwater', ['flood', 'flooding', 'storm drain', 'drain is blocked', 'clogged drain', 'water everywhere', 'inundacion', 'inundación', 'alcantarilla', 'desague']],
-  ['Dead Animal', ['dead animal', 'dead dog', 'dead cat', 'dead raccoon', 'dead possum', 'dead coyote', 'roadkill', 'carcass', 'animal muerto', 'perro muerto', 'gato muerto']],
-  ['Illegal Dumping', ['dumped', 'dumping', 'mattress', 'couch', 'furniture', 'tires', 'pile of junk', 'construction debris', 'tiraron', 'colchon', 'colchón', 'escombro', 'basura tirada']],
-  ['Encampment', ['encampment', 'tent', 'tents', 'homeless camp', 'unhoused', 'campamento', 'carpas', 'personas sin hogar']],
-  ['Sidewalk Repair Issue', ['sidewalk', 'trip hazard', 'uplifted', 'cracked pavement on the walk', 'acera', 'banqueta']],
-  ['ADA Compliance', ['wheelchair', 'curb ramp', 'ada', 'accessible', 'accessibility', 'silla de ruedas', 'rampa']],
-  ['Environmental Services Code Compliance', ['oil', 'chemical', 'runoff', 'contamination', 'pollution', 'smell of gas', 'sewage', 'quimico', 'contaminacion', 'aceite']],
-  ['Missed Collection', ['trash pickup', 'missed collection', 'garbage pickup', 'recycling', 'trash cans overflowing', 'overflowing', 'bins', 'no recogieron', 'botes de basura']],
-  ['Vegetation Encroachment', ['overgrown', 'bushes', 'hedge', 'vegetation', 'blocking the sign', 'weeds', 'arbustos', 'hierba']],
-  ['ROW Maintenance', ['right of way', 'median', 'shoulder', 'guardrail', 'road sign down', 'sign is down', 'camellon']],
-  ['Parks Issue', ['park', 'playground', 'swing', 'slide', 'restroom', 'bathroom', 'parque', 'juegos', 'columpio']],
-  ['Building and Land Use Enforcement', ['construction without permit', 'unpermitted', 'illegal construction', 'building code', 'land use', 'sin permiso']],
-  ['Oversized Vehicle', ['rv', 'motorhome', 'oversized', 'boat trailer', 'camper', 'casa rodante']],
-  ['Parking - 72-Hours', ['72 hour', '72-hour', 'abandoned car', 'abandoned vehicle', 'has not moved', "hasn't moved", 'carro abandonado', 'auto abandonado']],
-  ['Parking Violation', ['parked', 'parking', 'hydrant', 'double parked', 'red curb', 'estacionado', 'hidrante']],
-  ['Street Sweeping', ['street sweeping', 'sweeper', 'leaves in the gutter', 'debris on the street', 'barrer']],
-  ['Graffiti - Code Enforcement', ['graffiti on my', 'graffiti on the business', 'graffiti on a house', 'tagged the store', 'graffiti en la casa']],
-  ['Graffiti - Public', ['graffiti', 'tagging', 'tagged', 'spray paint', 'grafiti', 'pintas']],
+  ['Traffic Signal Timing', ['signal timing', 'light takes forever', 'red light too long', 'green too short', 'timing']],
+  ['Traffic Signal Issue', ['traffic light', 'traffic signal', 'signal is out', 'signal out', 'light is out at the intersection', 'stoplight', 'stop light', 'signal dark', 'flashing red']],
+  ['Street Light Maintenance', ['street light', 'streetlight', 'lamp post', 'light pole', 'dark street', 'lights are out']],
+  ['Pothole', ['pothole', 'pot hole', 'hole in the road', 'crater', 'sinkhole']],
+  ['Tree Maintenance', ['tree', 'limb', 'branch', 'fallen palm', 'palm frond']],
+  ['Stormwater', ['flood', 'flooding', 'storm drain', 'drain is blocked', 'clogged drain', 'water everywhere']],
+  ['Dead Animal', ['dead animal', 'dead dog', 'dead cat', 'dead raccoon', 'dead possum', 'dead coyote', 'roadkill', 'carcass']],
+  ['Illegal Dumping', ['dumped', 'dumping', 'mattress', 'couch', 'furniture', 'tires', 'pile of junk', 'construction debris']],
+  ['Encampment', ['encampment', 'tent', 'tents', 'homeless camp', 'unhoused']],
+  ['Sidewalk Repair Issue', ['sidewalk', 'trip hazard', 'uplifted', 'cracked pavement on the walk']],
+  ['ADA Compliance', ['wheelchair', 'curb ramp', 'ada', 'accessible', 'accessibility']],
+  ['Environmental Services Code Compliance', ['oil', 'chemical', 'runoff', 'contamination', 'pollution', 'smell of gas', 'sewage']],
+  ['Missed Collection', ['trash pickup', 'missed collection', 'garbage pickup', 'recycling', 'trash cans overflowing', 'overflowing', 'bins']],
+  ['Vegetation Encroachment', ['overgrown', 'bushes', 'hedge', 'vegetation', 'blocking the sign', 'weeds']],
+  ['ROW Maintenance', ['right of way', 'median', 'shoulder', 'guardrail', 'road sign down', 'sign is down']],
+  ['Parks Issue', ['park', 'playground', 'swing', 'slide', 'restroom', 'bathroom']],
+  ['Building and Land Use Enforcement', ['construction without permit', 'unpermitted', 'illegal construction', 'building code', 'land use']],
+  ['Oversized Vehicle', ['rv', 'motorhome', 'oversized', 'boat trailer', 'camper']],
+  ['Parking - 72-Hours', ['72 hour', '72-hour', 'abandoned car', 'abandoned vehicle', 'has not moved', "hasn't moved"]],
+  ['Parking Violation', ['parked', 'parking', 'hydrant', 'double parked', 'red curb']],
+  ['Street Sweeping', ['street sweeping', 'sweeper', 'leaves in the gutter', 'debris on the street']],
+  ['Graffiti - Code Enforcement', ['graffiti on my', 'graffiti on the business', 'graffiti on a house', 'tagged the store']],
+  ['Graffiti - Public', ['graffiti', 'tagging', 'tagged', 'spray paint']],
 ];
 
 const strip = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -100,11 +100,11 @@ export function classifyText(text) {
 export function tierFor(category, text = '') {
   const base = CATEGORIES[category]?.tier ?? 3;
   const t = strip(text);
-  if (category === 'Parking Violation' && /(hydrant|hidrante|fire lane|emergency|ambulance|fire truck|bomberos)/.test(t)) return 1;
-  if (category === 'Parks Issue' && /(playground|swing|slide|juegos|columpio|resbaladilla)/.test(t) && /(broken|rota|roto|sharp|dangerous|peligro|exposed|collapsed)/.test(t)) {
-    return /(injur|hurt|bleeding|cut his|cut her|herido|lastim)/.test(t) ? 1 : 2;
+  if (category === 'Parking Violation' && /(hydrant|fire lane|emergency|ambulance|fire truck)/.test(t)) return 1;
+  if (category === 'Parks Issue' && /(playground|swing|slide)/.test(t) && /(broken|sharp|dangerous|exposed|collapsed)/.test(t)) {
+    return /(injur|hurt|bleeding|cut his|cut her)/.test(t) ? 1 : 2;
   }
   return base;
 }
 
-export const isUrgentWord = (text) => /(huge|massive|giant|enormous|enorme|gigante|deep|profundo)/.test(strip(text));
+export const isUrgentWord = (text) => /(huge|massive|giant|enormous|deep)/.test(strip(text));
