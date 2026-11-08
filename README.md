@@ -14,14 +14,6 @@ For frontend development with hot reload, run `npm run dev:server` and `npm run 
 - Data lives in `server/data/issues.json`. It's created from `server/seed.js` (35 seeded calls) on first run. **↺ Reset** in the UI, or `POST /api/reset`, restores it.
 - Server env vars: `PORT`, `ELEVENLABS_WEBHOOK_SECRET` (optional HMAC check), `DISABLE_NOMINATIM=1` (offline: skip the OpenStreetMap geocoding fallback).
 
-## Demo script
-1. Toggle **Heatmap**: downtown 7th & Eighth glows deep red.
-2. In the simulator, click **🎯 Merge: pothole at 7th & Market** and submit. The map flies to SD-101 and its radius shrinks from 200 m to 50 m.
-3. Click **🌳 New Tier 1: tree down**. It appears in the review queue; click **Approve & Forward to Crew**.
-4. Click **📝 In a rush → PIN** to get a PIN, then **🔓 Return with PIN 402** to reopen a draft at 60 m.
-5. Click 👎 three times on any pin; it disappears.
-6. Click **⏱️ Simulate 2-Week Decay**: every issue drops a tier and the Tier 4 issues resolve.
-
 ## Layout
 - `server/index.js`: Express routes, the SSE stream at `/api/stream`, and static hosting
 - `server/pipeline.js`: PIN reopen, preliminary drafts, hang-up handling, 800 m dedup with 40% radius shrinking, Tier 1 flagging, decay, and the executive summary
