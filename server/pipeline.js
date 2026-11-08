@@ -256,15 +256,22 @@ export function approve(id) {
   return i;
 }
 
-/** Simulate 2 weeks with zero new calls: every open issue drops a tier, Tier 4 resolves. */
+/**
+ * Simulate 2 weeks with zero new calls: quiet issues drop a tier and Tier 4 issues resolve.
+ * Safety hazards (Tier 1, or still awaiting review) are held: silence isn't proof a hazard is gone.
+ */
 export function simulateDecay(days = 14) {
-  let dropped = 0, resolved = 0;
+  let dropped = 0, resolved = 0, held = 0;
+  const resolvedIssues = [];
   const shift = (iso) => new Date(new Date(iso).getTime() - days * DAY).toISOString();
   for (const i of store.all()) {
     if (!OPEN.includes(i.status)) continue;
     i.first_reported_at = shift(i.first_reported_at);
     i.last_reported_at = shift(i.last_reported_at);
-    if (i.tier >= 4) {
+    if (i.tier === 1 || i.status === 'flagged_for_review') {
+      held++;
+    } else if (i.tier >= 4) {
+      resolvedIssues.push({ id: i.id, title: i.title });
       i.status = 'resolved';
       i.flagged_for_review = false;
       i.resolved_at = new Date().toISOString();
@@ -278,8 +285,9 @@ export function simulateDecay(days = 14) {
     }
   }
   store.save();
-  log({ action: 'decay', issue_id: null, message: `Simulated ${days} days: ${dropped} issues dropped a tier, ${resolved} resolved` });
-  return { dropped, downgraded: dropped, resolved }; // `downgraded` is the name the new frontend reads
+  log({ action: 'decay', issue_id: null, message: `Simulated ${days} days: ${dropped} issues dropped a tier, ${resolved} resolved, ${held} safety hazards held` });
+  // `downgraded` is the name the frontend reads; `dropped` kept for older clients.
+  return { dropped, downgraded: dropped, resolved, held, resolved_issues: resolvedIssues };
 }
 
 /** "What to Focus On" executive summary + headline stats. */

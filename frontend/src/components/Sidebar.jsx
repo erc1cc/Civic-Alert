@@ -178,7 +178,6 @@ export default function Sidebar({
   onCallEnded, onError, onSampleStart, onSampleFiled, sampleKey,
 }) {
   const [decaying, setDecaying] = useState(false);
-  const [confirmDecay, setConfirmDecay] = useState(false);
   const [showAll, setShowAll] = useState(false);
 
   const stats = useMemo(() => ({
@@ -204,11 +203,6 @@ export default function Sidebar({
   );
 
   async function decay() {
-    if (mode === 'live' && !confirmDecay) {
-      setConfirmDecay(true);
-      return;
-    }
-    setConfirmDecay(false);
     setDecaying(true);
     try { await onDecay(); } finally { setDecaying(false); }
   }
@@ -324,24 +318,19 @@ export default function Sidebar({
           <button
             type="button"
             onClick={decay}
-            onBlur={() => setConfirmDecay(false)}
             disabled={decaying}
-            className={`w-full disabled:cursor-wait disabled:opacity-60 ${confirmDecay ? `${BTN} bg-tier-1 text-white` : BTN_SECONDARY}`}
+            className={`w-full disabled:cursor-wait disabled:opacity-60 ${BTN_SECONDARY}`}
           >
             {decaying ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Clock className="size-4" aria-hidden />}
-            {confirmDecay ? 'Changes the live backend. Click again to confirm' : 'Simulate 2 weeks'}
+            Simulate 2 weeks
           </button>
-          {mode === 'demo' ? (
-            <button
-              type="button"
-              onClick={onReset}
-              className={`w-full ${BTN_SECONDARY}`}
-            >
-              <RotateCcw className="size-4" aria-hidden /> Reset demo data
-            </button>
-          ) : (
-            <p className="text-[14px] text-ink-2">Connected to the live backend. Reset is only available with demo data.</p>
-          )}
+          <button
+            type="button"
+            onClick={onReset}
+            className={`w-full ${BTN_SECONDARY}`}
+          >
+            <RotateCcw className="size-4" aria-hidden /> {mode === 'live' ? 'Reset map to the 35 starting issues' : 'Reset demo data'}
+          </button>
         </div>
       </details>
     </div>

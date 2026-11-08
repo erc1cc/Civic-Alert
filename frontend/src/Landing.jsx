@@ -5,7 +5,6 @@ import { TIERS } from './lib/categories';
 import { fmtRadius } from './lib/time';
 
 const open = seed.filter((i) => i.status !== 'resolved');
-const totalCalls = open.reduce((n, i) => n + i.call_count, 0);
 
 function Mark({ className = 'size-6' }) {
   return (
@@ -92,7 +91,6 @@ function Nav() {
         <ul className="hidden items-center gap-6 text-[14px] text-white/80 md:flex">
           <li><a className="hover:text-white" href="#how">How it works</a></li>
           <li><a className="hover:text-white" href="#what">What it does</a></li>
-          <li><a className="hover:text-white" href="#honest">Prototype notes</a></li>
         </ul>
         <a
           href="/map"
@@ -153,7 +151,7 @@ function Hero() {
             <MapIcon className="size-4" aria-hidden /> Open the live map
           </a>
         </div>
-        <p className="meta mt-6 text-white/50">No app · no GPS · hackathon prototype</p>
+        <p className="meta mt-6 text-white/50">No app · no GPS</p>
       </div>
     </section>
   );
@@ -346,31 +344,6 @@ function What() {
   );
 }
 
-function Honest() {
-  const notes = [
-    ['Demo data', `With no backend connected, the map runs on ${open.length} fictional San Diego issues (${totalCalls} calls) in your browser.`],
-    ['Simulated dispatch', '“Approve for crew” moves an issue into a simulated crew queue. No real crew is sent.'],
-    ['Modeled categories', 'Urgency tiers follow the categories San Diego’s Get It Done uses. There is no City partnership.'],
-  ];
-  return (
-    <section id="honest" aria-labelledby="honest-h" className="border-t border-line">
-      <div className="mx-auto max-w-[1240px] px-4 py-24 sm:px-6">
-        <h2 id="honest-h" className="title max-w-[26ch] text-[34px] sm:text-[40px]">
-          A prototype, labelled as one. <span className="text-ink-3">Built at a hackathon to show the loop end to end.</span>
-        </h2>
-        <ul className="mt-12 grid border-t border-line md:grid-cols-3">
-          {notes.map(([t, d]) => (
-            <li key={t} className="border-b border-line py-6 md:border-b-0 md:border-r md:px-6 md:first:pl-0 md:last:border-r-0">
-              <h3 className="text-[17px]">{t}</h3>
-              <p className="mt-2 max-w-[38ch] text-[15px] leading-relaxed text-ink-2">{d}</p>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
 function Footer() {
   return (
     <footer className="relative overflow-hidden bg-night text-white">
@@ -408,7 +381,7 @@ function Footer() {
       </div>
       <div className="mx-auto flex max-w-[1240px] flex-wrap justify-between gap-2 border-t border-white/10 px-4 py-6 text-[13px] text-white/50 sm:px-6">
         <span>SD Voice Town Hall · San Diego, CA</span>
-        <span>Hackathon prototype · not affiliated with the City of San Diego</span>
+        <span>Not affiliated with the City of San Diego</span>
       </div>
       <p aria-hidden className="display pointer-events-none -mb-[0.18em] select-none whitespace-nowrap text-center text-[18vw] leading-none text-white/[0.04]">
         town hall
@@ -429,7 +402,6 @@ export default function Landing() {
         <Problem />
         <How />
         <What />
-        <Honest />
       </main>
       <Footer />
     </>

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { MapPin, Flame, Route, Trash2, Lamp, FileClock } from 'lucide-react';
+import { MapPin, Flame, Route, Trash2, Lamp, FileClock, Clock, Loader2 } from 'lucide-react';
 import { FILTER_GROUPS } from '../lib/categories';
 
 const LAYERS = [
@@ -29,11 +29,17 @@ function useEdgeFade() {
   return [ref, { maskImage: mask, WebkitMaskImage: mask }];
 }
 
-export default function LayerBar({ layer, onLayer, filters, onToggleFilter, counts }) {
+export default function LayerBar({ layer, onLayer, filters, onToggleFilter, counts, onDecay }) {
   const [chipsRef, fade] = useEdgeFade();
+  const [decaying, setDecaying] = useState(false);
+  async function decay() {
+    setDecaying(true);
+    try { await onDecay?.(); } finally { setDecaying(false); }
+  }
   return (
     <div className="pointer-events-none absolute inset-x-0 top-3 z-[1000] flex flex-col items-center gap-2 px-3">
-      <div role="radiogroup" aria-label="Map view" className="pointer-events-auto flex rounded-[6px] border border-line bg-card p-1 shadow-[var(--shadow-card)]">
+      <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2">
+      <div role="radiogroup" aria-label="Map view" className="flex rounded-[6px] border border-line bg-card p-1 shadow-[var(--shadow-card)]">
         {LAYERS.map(({ id, label, icon: Icon }) => {
           const active = layer === id;
           return (
@@ -52,6 +58,19 @@ export default function LayerBar({ layer, onLayer, filters, onToggleFilter, coun
             </button>
           );
         })}
+      </div>
+      {onDecay && (
+        <button
+          type="button"
+          onClick={decay}
+          disabled={decaying}
+          title="Fast-forward two weeks with no new calls: quiet issues drop a tier and routine ones resolve on their own"
+          className="flex min-h-12 cursor-pointer items-center gap-1.5 whitespace-nowrap rounded-[6px] border border-line bg-card px-3.5 text-[14px] font-[450] text-ink shadow-[var(--shadow-card)] transition-colors duration-150 hover:border-ink disabled:cursor-wait disabled:opacity-60"
+        >
+          {decaying ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Clock className="size-4" aria-hidden />}
+          Simulate 2 weeks
+        </button>
+      )}
       </div>
 
       <div

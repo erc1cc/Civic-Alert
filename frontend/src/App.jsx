@@ -4,7 +4,7 @@ import MapView from './components/MapView';
 import LayerBar from './components/LayerBar';
 import Legend from './components/Legend';
 import Sidebar, { UNDO_MS } from './components/Sidebar';
-import { fetchIssues, verifyIssue, approveIssue, simulateDecay, getMode, resetDemo, fileSampleCall, SAMPLE_CALLS } from './lib/api';
+import { fetchIssues, verifyIssue, approveIssue, simulateDecay, getMode, resetDemo, resetLive, fileSampleCall, SAMPLE_CALLS } from './lib/api';
 import { FILTER_GROUPS, TIERS, groupOf, isVisible } from './lib/categories';
 
 const POLL_MS = 4000;
@@ -215,16 +215,21 @@ export default function App() {
   // Decay is shown, not just reported: pull back to the whole city first, then let every pin re-tier in view.
   const onDecay = async () => {
     const before = tierCounts(issuesRef.current);
+    const beforeIssues = issuesRef.current;
     setFocus(null);
     setDecayReport(null);
     setLayer('pins');
     await mapApi.current?.fitAll(issuesRef.current);
     const { ok, result } = await run(simulateDecay, null, 'Couldn’t simulate decay');
     if (!ok) return;
-    const after = tierCounts(dataRef.current.filter(isVisible));
+    const afterIssues = dataRef.current.filter(isVisible);
+    const after = tierCounts(afterIssues);
+    // Name what resolved on its own, so the report shows *which* issues closed, not just how many.
+    const stillOpen = new Set(afterIssues.map((i) => i.id));
+    const resolvedList = beforeIssues.filter((i) => !stillOpen.has(i.id)).map((i) => i.title);
     const nonce = Date.now();
-    setDecayReport({ before, after, held: result?.held, nonce });
-    setTimeout(() => setDecayReport((d) => (d?.nonce === nonce ? null : d)), 10000);
+    setDecayReport({ before, after, held: result?.held, resolvedList, nonce });
+    setTimeout(() => setDecayReport((d) => (d?.nonce === nonce ? null : d)), 15000);
   };
 
   const onReset = async () => {
@@ -236,13 +241,17 @@ export default function App() {
     setFocus(null);
     setDecayReport(null);
     setToasts([]);
-    resetDemo();
+    if (getMode() === 'live') {
+      try { await resetLive(); } catch (err) { toast(`Couldn’t reset: ${err.message}. Try again.`, 'error'); return; }
+    } else {
+      resetDemo();
+    }
     setSampleKey((k) => k + 1);
     history.replaceState(null, '', window.location.pathname + window.location.search);
     await refresh();
     mapApi.current?.fitAll(dataRef.current.filter(isVisible));
     document.getElementById('sidebar')?.scrollTo({ top: 0, behavior: 'smooth' });
-    toast('Demo data reset to the starting 35 issues.', 'success');
+    toast('Map reset to the starting 35 issues.', 'success');
   };
 
   // Sample calls: frame the pin while the caller is still talking, so the change happens on camera.
@@ -339,7 +348,7 @@ export default function App() {
               onPopupChange={onPopupChange}
             />
           )}
-          <LayerBar layer={layer} onLayer={setLayer} filters={filters} onToggleFilter={toggleFilter} counts={counts} />
+          <LayerBar layer={layer} onLayer={setLayer} filters={filters} onToggleFilter={toggleFilter} counts={counts} onDecay={onDecay} />
           <div id="call-card-slot" className="pointer-events-none absolute right-4 top-[188px] z-[1000] hidden max-h-[calc(100%-300px)] w-[360px] overflow-y-auto lg:block" />
           <Legend layer={layer} popupOpen={popupOpen} />
           <Toasts toasts={toasts} onDismiss={dismiss} report={decayReport} onCloseReport={() => setDecayReport(null)} />
@@ -350,8 +359,9 @@ export default function App() {
 }
 
 function DecayReport({ report, onClose }) {
-  const { before, after, held } = report;
+  const { before, after, held, resolvedList = [] } = report;
   const resolved = Math.max(0, before.open - after.open);
+  const SHOW = 4;
   return (
     <section
       role="status"
@@ -390,8 +400,19 @@ function DecayReport({ report, onClose }) {
           <dd className="mt-1 font-mono text-[15px] tabular-nums">{resolved}</dd>
         </div>
       </dl>
+      {resolvedList.length > 0 && (
+        <div className="mt-4 border-t border-line pt-3">
+          <p className="meta text-success">Resolved automatically</p>
+          <ul className="mt-2 space-y-1 text-[14px] text-ink">
+            {resolvedList.slice(0, SHOW).map((t) => (
+              <li key={t} className="flex gap-2"><span className="text-success" aria-hidden>✓</span>{t}</li>
+            ))}
+            {resolvedList.length > SHOW && <li className="text-ink-2">and {resolvedList.length - SHOW} more</li>}
+          </ul>
+        </div>
+      )}
       <p className="mt-4 text-[14px] text-ink-2">
-        Quiet issues drop a tier.{typeof held === 'number' ? ` ${held} safety hazards were held because silence isn’t proof a hazard is gone.` : ''}
+        Quiet issues drop a tier and routine ones close on their own.{typeof held === 'number' ? ` ${held} safety hazards were held because silence isn’t proof a hazard is gone.` : ''}
       </p>
     </section>
   );

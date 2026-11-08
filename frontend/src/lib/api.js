@@ -129,6 +129,11 @@ export async function simulateDecay() {
   return localDecay();
 }
 
+/** Live mode: restore the backend's 35 seeded issues. */
+export async function resetLive() {
+  return request('/api/reset', { method: 'POST' });
+}
+
 /** Demo mode only: put every issue back to the seeded state. */
 export function resetDemo() {
   local = structuredClone(seed);
