@@ -34,12 +34,12 @@ function readEnvFile(file) {
     .map((l) => [l.slice(0, l.indexOf('=')).trim(), l.slice(l.indexOf('=') + 1).trim()]));
 }
 const rootEnv = readEnvFile(path.join(ROOT, '.env'));
-const clientEnv = readEnvFile(path.join(ROOT, 'client', '.env'));
+const clientEnv = { ...readEnvFile(path.join(ROOT, 'client', '.env')), ...readEnvFile(path.join(ROOT, 'frontend', '.env')) };
 const apiKey = process.env.DAYTONA_API_KEY || rootEnv.DAYTONA_API_KEY;
 if (!apiKey) fail('Set DAYTONA_API_KEY (create one at app.daytona.io → API Keys), either in your shell or in a .env file in the project root.');
 
 const agentId = process.env.VITE_ELEVENLABS_AGENT_ID || clientEnv.VITE_ELEVENLABS_AGENT_ID || '';
-if (!agentId) console.warn('⚠ No VITE_ELEVENLABS_AGENT_ID found in client/.env: the call button will be disabled (the simulator still works).');
+if (!agentId) console.warn('⚠ No VITE_ELEVENLABS_AGENT_ID found in frontend/.env: the call button will be disabled (the simulator still works).');
 const webhookSecret = process.env.ELEVENLABS_WEBHOOK_SECRET || rootEnv.ELEVENLABS_WEBHOOK_SECRET || '';
 const caseSandboxes = ['1', 'true', 'yes'].includes(String(process.env.CASE_SANDBOXES || rootEnv.CASE_SANDBOXES || '').toLowerCase());
 // The hosting sandbox gets its own label. server/sandbox.js sweeps sandboxes labelled
@@ -97,7 +97,7 @@ const APP = `${home}/app`;
 
 // ── Upload code ──
 step(`Uploading ${files.length} files…`);
-await run(`mkdir -p ${APP} && cd ${APP} && rm -rf client/src server/*.js scripts agent`, { quiet: true });
+await run(`mkdir -p ${APP} && cd ${APP} && rm -rf client frontend/src server/*.js scripts agent`, { quiet: true });
 for (let i = 0; i < files.length; i += 50) {
   await sandbox.fs.uploadFiles(files.slice(i, i + 50).map((f) => ({ source: path.join(ROOT, f), destination: `${APP}/${f}` })));
 }

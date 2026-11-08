@@ -114,8 +114,8 @@ function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_42%_38%_at_50%_52%,rgb(13_15_18/0.9)_0%,rgb(13_15_18/0.6)_55%,rgb(13_15_18/0)_100%)]" aria-hidden />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-b from-transparent to-ground" aria-hidden />
 
-      <FloatCard label="Caller · ES · listening" className="left-[6%] top-[22%] hidden w-[300px] lg:block">
-        <span lang="es">“La banqueta está levantada enfrente de la primaria en Logan Avenue.”</span>
+      <FloatCard label="Caller · listening" className="left-[6%] top-[22%] hidden w-[300px] lg:block">
+        <span>“The sidewalk is lifted in front of the elementary school on Logan Avenue.”</span>
       </FloatCard>
       <FloatCard label="SD-135 · location" className="right-[6%] top-[26%] hidden w-[280px] lg:block" delay="-2s">
         <span>Palm frond across Laurel St</span>
@@ -153,7 +153,7 @@ function Hero() {
             <MapIcon className="size-4" aria-hidden /> Open the live map
           </a>
         </div>
-        <p className="meta mt-6 text-white/50">English / Español · no app · no GPS · hackathon prototype</p>
+        <p className="meta mt-6 text-white/50">No app · no GPS · hackathon prototype</p>
       </div>
     </section>
   );
@@ -165,8 +165,8 @@ function Problem() {
       <p className="title max-w-[30ch] text-[30px] sm:text-[40px] lg:ml-[33%] lg:text-[44px]">
         Reporting a broken street shouldn’t need an app, an account, or a GPS fix.{' '}
         <span className="text-ink-3">
-          Most people who notice a dark signal or a dumped couch have a phone and a minute. Voice Town Hall takes the call
-          in English or Spanish, asks for a landmark, and does the locating itself.
+          Most people who notice a dark signal or a dumped couch have a phone and a minute. Voice Town Hall takes the call,
+          asks for a landmark, and does the locating itself.
         </span>
       </p>
     </section>
@@ -303,9 +303,9 @@ const FEATURES = [
   {
     id: 'talk',
     title: 'A conversation, not a form.',
-    body: 'The agent asks one question at a time, in English or Spanish. Callers who can’t name a cross street get a PIN to confirm the report later.',
+    body: 'The agent asks one question at a time. Callers who can’t name a cross street get a PIN to confirm the report later.',
     visual: <TranscriptDemo />,
-    facts: ['English', 'Español', 'Caller PIN for drafts', 'No GPS, no app'],
+    facts: ['Plain conversation', 'Caller PIN for drafts', 'No GPS, no app'],
   },
   {
     id: 'quiet',

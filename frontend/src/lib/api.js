@@ -119,6 +119,11 @@ export async function approveIssue(id) {
   return localApprove(id);
 }
 
+/** File a voice report through the backend pipeline (the ElevenLabs agent's submit_report tool, or a hang-up). */
+export async function submitReport(payload) {
+  return request('/api/tools/submit-report', { method: 'POST', body: JSON.stringify(payload) });
+}
+
 export async function simulateDecay() {
   if (mode === 'live') return request('/api/simulate-decay', { method: 'POST' });
   return localDecay();
@@ -132,12 +137,11 @@ export function resetDemo() {
 
 // ---- scripted sample calls (demo mode, or when no ElevenLabs agent is configured) ----
 // Each one shows a different step of the loop: corroborating an existing report (halo tightens),
-// a Spanish caller creating a preliminary draft, and a second caller promoting a draft.
+// a caller who can't name a cross street creating a preliminary draft, and a second caller promoting a draft.
 // `target` is where the map frames while the caller is still talking.
 export const SAMPLE_CALLS = [
   {
     target: { id: 'SD-135', lat: 32.7316, lng: -117.1556, category: 'Tree Maintenance', status: 'flagged_for_review' },
-    language: 'en',
     lines: [
       ['agent', 'San Diego Voice Town Hall. What’s the problem, and what’s near it?'],
       ['caller', 'A huge palm frond is lying across Laurel Street, right where it meets the Cabrillo Bridge.'],
@@ -159,13 +163,12 @@ export const SAMPLE_CALLS = [
   },
   {
     target: { id: 'SD-136', lat: 32.6987, lng: -117.1442, category: 'Sidewalk Repair Issue', status: 'preliminary' },
-    language: 'es',
     lines: [
-      ['agent', 'Voice Town Hall de San Diego. ¿Cuál es el problema y qué hay cerca?'],
-      ['caller', 'La banqueta está levantada enfrente de la primaria en Logan Avenue. Los niños se tropiezan.'],
-      ['agent', '¿Recuerda la calle que cruza más cercana?'],
-      ['caller', 'No estoy segura… está cerca de la iglesia.'],
-      ['agent', 'Gracias. Creé un reporte preliminar. Su PIN es 5-8-6 para confirmarlo después.'],
+      ['agent', 'San Diego Voice Town Hall. What’s the problem, and what’s near it?'],
+      ['caller', 'The sidewalk is lifted in front of the elementary school on Logan Avenue. Kids keep tripping on it.'],
+      ['agent', 'Do you know the nearest cross street?'],
+      ['caller', 'I’m not sure… it’s near the church.'],
+      ['agent', 'Thanks. I’ve created a preliminary report. Your PIN is 5-8-6 to confirm it later.'],
     ],
     apply() {
       const now = new Date().toISOString();
@@ -177,7 +180,7 @@ export const SAMPLE_CALLS = [
         category: 'Sidewalk Repair Issue',
         tier: 2,
         title: 'Raised sidewalk outside the elementary school on Logan Ave',
-        descriptions: ['La banqueta está levantada enfrente de la primaria en Logan Avenue. Los niños se tropiezan.'],
+        descriptions: ['The sidewalk is lifted in front of the elementary school on Logan Avenue. Kids keep tripping on it.'],
         lat: 32.6987,
         lng: -117.1442,
         uncertainty_radius_meters: 450,
@@ -186,7 +189,6 @@ export const SAMPLE_CALLS = [
         last_reported_at: now,
         still_there_yes: 0,
         still_there_no: 0,
-        language: 'es',
       };
       local = [...local.filter((x) => x.id !== issue.id), issue];
       return { id: issue.id, kind: 'draft', title: issue.title, after: issue.uncertainty_radius_meters, pin: issue.pin_code };
@@ -194,7 +196,6 @@ export const SAMPLE_CALLS = [
   },
   {
     target: { id: 'SD-130', lat: 32.7956, lng: -117.2347, category: 'Pothole', status: 'preliminary' },
-    language: 'en',
     lines: [
       ['agent', 'San Diego Voice Town Hall. What’s the problem, and what’s near it?'],
       ['caller', 'There’s a pothole on Grand Avenue, right in front of the taco shop at Ingraham.'],

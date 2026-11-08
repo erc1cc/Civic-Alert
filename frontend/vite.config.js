@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 // Backend (Express/FastAPI) runs separately; /api is proxied to it in dev.
-const API_TARGET = process.env.API_TARGET || 'http://localhost:8000';
+const API_TARGET = process.env.API_TARGET || 'http://localhost:3000';
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],

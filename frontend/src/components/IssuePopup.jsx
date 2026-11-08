@@ -47,11 +47,8 @@ export default function IssuePopup({ issue, approved, onVerify }) {
       </dl>
 
       {latest && (
-        <blockquote lang={issue.language} className="mt-3 text-[15px] leading-relaxed text-ink">
+        <blockquote className="mt-3 text-[15px] leading-relaxed text-ink">
           “{latest}”
-          {issue.language === 'es' && (
-            <span lang="en" className="meta ml-1.5 rounded-[3px] border border-line-strong px-1 text-[10px] text-ink-2">ES</span>
-          )}
         </blockquote>
       )}
 

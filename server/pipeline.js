@@ -279,7 +279,7 @@ export function simulateDecay(days = 14) {
   }
   store.save();
   log({ action: 'decay', issue_id: null, message: `Simulated ${days} days: ${dropped} issues dropped a tier, ${resolved} resolved` });
-  return { dropped, resolved };
+  return { dropped, downgraded: dropped, resolved }; // `downgraded` is the name the new frontend reads
 }
 
 /** "What to Focus On" executive summary + headline stats. */

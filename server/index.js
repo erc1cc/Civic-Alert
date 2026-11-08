@@ -116,9 +116,12 @@ app.get('/api/stream', (req, res) => {
 
 app.get('/api/health', (_req, res) => res.json({ ok: true, issues: store.all().length }));
 
-// Serve the built frontend (client/dist) when present — one port for Daytona.
-const dist = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'client', 'dist');
-if (fs.existsSync(dist)) {
+// Serve the built dashboard when present — one port for Daytona. The new UI (frontend/) wins over the old one (client/).
+const dist = ['frontend', 'client']
+  .map((d) => path.join(path.dirname(fileURLToPath(import.meta.url)), '..', d, 'dist'))
+  .find((d) => fs.existsSync(path.join(d, 'index.html')));
+if (dist) {
+  console.log(`Serving dashboard from ${path.relative(process.cwd(), dist) || dist}`);
   app.use(express.static(dist));
   app.get(/^\/(?!api).*/, (_req, res) => res.sendFile(path.join(dist, 'index.html')));
 }

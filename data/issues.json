@@ -19,8 +19,7 @@
     "first_reported_at": "2026-11-04T20:00:00.000Z",
     "last_reported_at": "2026-11-08T19:00:00.000Z",
     "still_there_yes": 8,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-102",
@@ -41,8 +40,7 @@
     "first_reported_at": "2026-11-05T20:00:00.000Z",
     "last_reported_at": "2026-11-08T14:00:00.000Z",
     "still_there_yes": 3,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-103",
@@ -63,8 +61,7 @@
     "first_reported_at": "2026-11-06T20:00:00.000Z",
     "last_reported_at": "2026-11-08T10:00:00.000Z",
     "still_there_yes": 2,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-104",
@@ -84,8 +81,7 @@
     "first_reported_at": "2026-11-03T20:00:00.000Z",
     "last_reported_at": "2026-11-08T00:00:00.000Z",
     "still_there_yes": 2,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-105",
@@ -105,8 +101,7 @@
     "first_reported_at": "2026-10-31T12:00:00.000Z",
     "last_reported_at": "2026-11-05T02:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-106",
@@ -127,8 +122,7 @@
     "first_reported_at": "2026-11-08T15:00:00.000Z",
     "last_reported_at": "2026-11-08T19:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-107",
@@ -139,7 +133,7 @@
     "tier": 2,
     "title": "Raised sidewalk slab near Horton Plaza",
     "descriptions": [
-      "La banqueta está levantada cerca de Horton Plaza, mi abuela se tropezó."
+      "The sidewalk is lifted near Horton Plaza, my grandmother tripped on it."
     ],
     "lat": 32.7142,
     "lng": -117.1615,
@@ -148,8 +142,7 @@
     "first_reported_at": "2026-11-02T14:00:00.000Z",
     "last_reported_at": "2026-11-07T14:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "es"
+    "still_there_no": 0
   },
   {
     "id": "SD-108",
@@ -169,8 +162,7 @@
     "first_reported_at": "2026-11-01T18:00:00.000Z",
     "last_reported_at": "2026-11-01T18:00:00.000Z",
     "still_there_yes": 0,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-109",
@@ -192,8 +184,7 @@
     "first_reported_at": "2026-11-08T13:00:00.000Z",
     "last_reported_at": "2026-11-08T19:30:00.000Z",
     "still_there_yes": 4,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-110",
@@ -214,8 +205,7 @@
     "first_reported_at": "2026-11-05T12:00:00.000Z",
     "last_reported_at": "2026-11-08T16:00:00.000Z",
     "still_there_yes": 4,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-111",
@@ -235,8 +225,7 @@
     "first_reported_at": "2026-11-06T08:00:00.000Z",
     "last_reported_at": "2026-11-08T08:00:00.000Z",
     "still_there_yes": 2,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-112",
@@ -256,8 +245,7 @@
     "first_reported_at": "2026-11-04T06:00:00.000Z",
     "last_reported_at": "2026-11-07T04:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-113",
@@ -268,7 +256,7 @@
     "tier": 2,
     "title": "Flickering lights on 30th St south of University",
     "descriptions": [
-      "Las luces de la calle 30 parpadean toda la noche."
+      "The street lights on 30th Street flicker all night."
     ],
     "lat": 32.7461,
     "lng": -117.1303,
@@ -277,8 +265,7 @@
     "first_reported_at": "2026-11-05T02:00:00.000Z",
     "last_reported_at": "2026-11-08T05:00:00.000Z",
     "still_there_yes": 2,
-    "still_there_no": 0,
-    "language": "es"
+    "still_there_no": 0
   },
   {
     "id": "SD-114",
@@ -298,8 +285,7 @@
     "first_reported_at": "2026-11-08T00:00:00.000Z",
     "last_reported_at": "2026-11-08T12:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-115",
@@ -319,8 +305,7 @@
     "first_reported_at": "2026-11-08T11:00:00.000Z",
     "last_reported_at": "2026-11-08T17:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-116",
@@ -331,7 +316,7 @@
     "tier": 1,
     "title": "Car blocking fire hydrant on Ohio St",
     "descriptions": [
-      "Un carro está bloqueando el hidrante en Ohio Street."
+      "A car is blocking the fire hydrant on Ohio Street."
     ],
     "lat": 32.7501,
     "lng": -117.133,
@@ -340,8 +325,7 @@
     "first_reported_at": "2026-11-08T17:00:00.000Z",
     "last_reported_at": "2026-11-08T19:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "es"
+    "still_there_no": 0
   },
   {
     "id": "SD-117",
@@ -362,8 +346,7 @@
     "first_reported_at": "2026-11-08T10:00:00.000Z",
     "last_reported_at": "2026-11-08T19:00:00.000Z",
     "still_there_yes": 3,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-118",
@@ -383,8 +366,7 @@
     "first_reported_at": "2026-11-03T10:00:00.000Z",
     "last_reported_at": "2026-11-08T02:00:00.000Z",
     "still_there_yes": 2,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-119",
@@ -404,8 +386,7 @@
     "first_reported_at": "2026-10-29T20:00:00.000Z",
     "last_reported_at": "2026-11-06T20:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-120",
@@ -425,8 +406,7 @@
     "first_reported_at": "2026-11-05T20:00:00.000Z",
     "last_reported_at": "2026-11-07T14:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-121",
@@ -446,8 +426,7 @@
     "first_reported_at": "2026-11-02T04:00:00.000Z",
     "last_reported_at": "2026-11-06T08:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-122",
@@ -467,8 +446,7 @@
     "first_reported_at": "2026-10-27T08:00:00.000Z",
     "last_reported_at": "2026-11-05T20:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-123",
@@ -488,8 +466,7 @@
     "first_reported_at": "2026-11-07T18:00:00.000Z",
     "last_reported_at": "2026-11-07T18:00:00.000Z",
     "still_there_yes": 0,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-124",
@@ -510,8 +487,7 @@
     "first_reported_at": "2026-11-07T04:00:00.000Z",
     "last_reported_at": "2026-11-08T17:00:00.000Z",
     "still_there_yes": 3,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-125",
@@ -532,8 +508,7 @@
     "first_reported_at": "2026-11-05T22:00:00.000Z",
     "last_reported_at": "2026-11-08T11:00:00.000Z",
     "still_there_yes": 2,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-126",
@@ -544,7 +519,7 @@
     "tier": 2,
     "title": "Broken playground slide at Kate Sessions Park",
     "descriptions": [
-      "El tobogán del parque Kate Sessions está roto, tiene un borde afilado."
+      "The slide at Kate Sessions Park is broken and has a sharp edge."
     ],
     "lat": 32.8096,
     "lng": -117.2361,
@@ -553,8 +528,7 @@
     "first_reported_at": "2026-11-07T14:00:00.000Z",
     "last_reported_at": "2026-11-08T12:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "es"
+    "still_there_no": 0
   },
   {
     "id": "SD-127",
@@ -574,8 +548,7 @@
     "first_reported_at": "2026-11-04T16:00:00.000Z",
     "last_reported_at": "2026-11-07T20:00:00.000Z",
     "still_there_yes": 2,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-128",
@@ -595,8 +568,7 @@
     "first_reported_at": "2026-11-05T02:00:00.000Z",
     "last_reported_at": "2026-11-05T02:00:00.000Z",
     "still_there_yes": 0,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-129",
@@ -616,8 +588,7 @@
     "first_reported_at": "2026-11-03T00:00:00.000Z",
     "last_reported_at": "2026-11-06T18:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-130",
@@ -637,8 +608,7 @@
     "first_reported_at": "2026-11-08T18:00:00.000Z",
     "last_reported_at": "2026-11-08T18:00:00.000Z",
     "still_there_yes": 0,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-131",
@@ -649,7 +619,7 @@
     "tier": 2,
     "title": "Missing curb ramp at Imperial Ave & 16th",
     "descriptions": [
-      "No hay rampa en la esquina de Imperial y la 16, no puedo cruzar con mi silla."
+      "There is no curb ramp at the corner of Imperial and 16th, I cannot cross in my wheelchair."
     ],
     "lat": 32.7069,
     "lng": -117.1478,
@@ -658,8 +628,7 @@
     "first_reported_at": "2026-11-01T08:00:00.000Z",
     "last_reported_at": "2026-11-05T22:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "es"
+    "still_there_no": 0
   },
   {
     "id": "SD-132",
@@ -670,7 +639,7 @@
     "tier": 3,
     "title": "Trash bins missed on Fairmount Ave, City Heights",
     "descriptions": [
-      "No recogieron la basura en Fairmount esta semana."
+      "Our trash was not picked up on Fairmount this week."
     ],
     "lat": 32.7479,
     "lng": -117.1024,
@@ -679,8 +648,7 @@
     "first_reported_at": "2026-11-06T18:00:00.000Z",
     "last_reported_at": "2026-11-08T06:00:00.000Z",
     "still_there_yes": 1,
-    "still_there_no": 0,
-    "language": "es"
+    "still_there_no": 0
   },
   {
     "id": "SD-133",
@@ -700,8 +668,7 @@
     "first_reported_at": "2026-10-31T02:00:00.000Z",
     "last_reported_at": "2026-10-31T02:00:00.000Z",
     "still_there_yes": 0,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-134",
@@ -721,8 +688,7 @@
     "first_reported_at": "2026-10-31T22:00:00.000Z",
     "last_reported_at": "2026-10-31T22:00:00.000Z",
     "still_there_yes": 0,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   },
   {
     "id": "SD-135",
@@ -742,7 +708,6 @@
     "first_reported_at": "2026-11-08T18:30:00.000Z",
     "last_reported_at": "2026-11-08T18:30:00.000Z",
     "still_there_yes": 0,
-    "still_there_no": 0,
-    "language": "en"
+    "still_there_no": 0
   }
 ]

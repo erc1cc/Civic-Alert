@@ -20,7 +20,7 @@ function Lines({ call, count, dark }) {
       {call.lines.slice(0, count).map(([who, text], k) => (
         <li key={k} className="transcript-line flex gap-3">
           <span className={`meta w-12 shrink-0 pt-0.5 ${dark ? 'text-white/50' : 'text-ink-2'}`}>{who === 'caller' ? 'Caller' : 'Agent'}</span>
-          <span lang={call.language} className={who === 'caller' ? (dark ? 'text-white' : 'text-ink') : (dark ? 'text-white/65' : 'text-ink-2')}>{text}</span>
+          <span className={who === 'caller' ? (dark ? 'text-white' : 'text-ink') : (dark ? 'text-white/65' : 'text-ink-2')}>{text}</span>
         </li>
       ))}
     </ol>
@@ -101,7 +101,7 @@ export default function SampleCall({ onStart, onFiled }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const label = transcript
-    ? `${playing ? 'Live' : 'Filed'} · ${transcript.language === 'es' ? 'Español' : 'English'}`
+    ? `${playing ? 'Live' : 'Filed'}`
     : '';
 
   const floating = slot && cardOpen && transcript && createPortal(
@@ -135,7 +135,7 @@ export default function SampleCall({ onStart, onFiled }) {
         className="group w-full cursor-pointer rounded-[var(--radius-card)] bg-ink px-4 py-3.5 text-left text-white transition-colors hover:bg-ink/88 disabled:cursor-default disabled:bg-wash disabled:text-ink-2"
       >
         <span className={`meta block ${call && !playing ? 'text-white/55' : ''}`}>
-          {call ? `Sample call · ${call.language === 'es' ? 'ES' : 'EN'} · ${played + 1} of ${total}` : `${total} of ${total} played`}
+          {call ? `Sample call · ${played + 1} of ${total}` : `${total} of ${total} played`}
         </span>
         <span className="mt-1.5 flex items-center gap-2.5 text-[17px] tracking-[-0.01em]">
           {playing ? <AudioLines className="size-4 animate-pulse" aria-hidden /> : <Mic className="size-4" aria-hidden />}

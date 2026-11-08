@@ -34,12 +34,6 @@ function Tag({ children, title }) {
   return <span className="meta rounded-[3px] border border-line-strong px-1 py-px text-[10px] text-ink-2" title={title}>{children}</span>;
 }
 
-function Lang({ issue }) {
-  return issue.language === 'es' ? (
-    <Tag title="Reported in Spanish">ES</Tag>
-  ) : null;
-}
-
 function hotspots(issues) {
   // Highest call volume per field, skipping anything already waiting in the review queue above.
   const pool = issues.filter((i) => i.status !== 'preliminary' && !isFlagged(i));
@@ -113,13 +107,12 @@ function QueueItem({ issue, primary, onFocus, onApprove }) {
       </div>
       <h3 id={`q-${issue.id}`} className="mt-3 text-[16px] font-[500] leading-snug tracking-[-0.01em]">{issue.title}</h3>
       {quote && (
-        <p className="mt-1.5 line-clamp-2 text-[15px] leading-snug text-ink-2" lang={issue.language}>
+        <p className="mt-1.5 line-clamp-2 text-[15px] leading-snug text-ink-2">
           “{quote}”
         </p>
       )}
       <p className="mt-2.5 flex items-center gap-2 font-mono text-[12px] text-ink-2">
         <span>{plural(issue.call_count, 'call')} · {fmtRadius(issue.uncertainty_radius_meters)} · first {timeAgo(issue.first_reported_at)}</span>
-        <Lang issue={issue} />
       </p>
       <div className="mt-4 flex gap-2">
         <button
@@ -164,11 +157,10 @@ function IssueRow({ issue, onFocus, meta, detail }) {
           </span>
           <span className="mt-1 flex items-center gap-1.5 text-[14px] text-ink-2">
             <span className="sr-only">{tierInfo(issue.tier).label}.</span>
-            <Lang issue={issue} />
             {issue.status === 'preliminary' && (
               <Tag>Draft</Tag>
             )}
-            <span className="line-clamp-1" lang={detail?.lang}>{detail?.text}</span>
+            <span className="line-clamp-1">{detail?.text}</span>
           </span>
         </span>
       </button>
@@ -301,7 +293,7 @@ export default function Sidebar({
               issue={i}
               onFocus={onFocus}
               meta={timeAgo(i.last_reported_at)}
-              detail={{ text: latestQuote(i), lang: i.language }}
+              detail={{ text: latestQuote(i) }}
             />
           ))}
         </ul>
