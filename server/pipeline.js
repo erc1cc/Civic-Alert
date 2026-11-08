@@ -2,6 +2,7 @@
 import * as store from './store.js';
 import { CATEGORIES, classifyText, matchCategory, tierFor, isUrgentWord } from './categories.js';
 import { geocode } from './geocode.js';
+import { openCase, closeCase } from './sandbox.js';
 
 export const OPEN = ['active', 'flagged_for_review', 'preliminary'];
 const MERGE_RADIUS_M = 800;
@@ -18,6 +19,10 @@ function log(entry) {
   store.events.emit('report', e);
   return e;
 }
+
+// Per-case Daytona sandboxes run in the background so a slow or failing Daytona never delays or breaks a call.
+const openSandbox = (issue) => { openCase(issue).catch((e) => console.error(`[sandbox] could not open ${issue.id}:`, e.message)); };
+const closeSandbox = (id) => { closeCase(id, 'resolved'); };
 
 export function distanceM(a, b) {
   const R = 6371000, rad = Math.PI / 180;
@@ -141,6 +146,7 @@ export async function processReport(body) {
       draft.last_reported_at = new Date().toISOString();
       if (r.conversation_id) draft.conversation_ids.push(r.conversation_id);
       store.save();
+      openSandbox(draft); // the draft is now a live case
       log({ action: 'reopened', issue_id: draft.id, message: `PIN ${r.pin_code} reopened ${draft.id} — pinpointed to 60 m` });
       return { action: 'reopened', issue: draft, message: es ? `Gracias, completamos su reporte ${draft.id}.` : `Thanks — your report ${draft.id} is now complete and on the map.` };
     }
@@ -193,6 +199,7 @@ export async function processReport(body) {
     match.flagged_for_review = match.status === 'flagged_for_review';
     if (r.conversation_id) match.conversation_ids.push(r.conversation_id);
     store.save();
+    openSandbox(match); // no-op if the case already has its sandbox
     const msg = `Merged into ${match.id} (${match.call_count} calls) — radius ${before} m → ${match.uncertainty_radius_meters} m`;
     log({ action: 'merged', issue_id: match.id, message: msg, radius_before: before, radius_after: match.uncertainty_radius_meters });
     return {
@@ -208,6 +215,7 @@ export async function processReport(body) {
     language: r.language, convo: r.conversation_id,
   });
   store.save();
+  openSandbox(issue);
   log({ action: 'created', issue_id: issue.id, message: `New ${category} (Tier ${tier}) ${issue.id}${status === 'flagged_for_review' ? ' — flagged for review' : ''}${r.ended_early ? ' — caller hung up, wide radius' : ''}` });
   return {
     action: 'created', issue,
@@ -226,6 +234,7 @@ export function verify(id, stillThere) {
     i.resolved_at = new Date().toISOString();
     i.resolved_reason = 'community_verified';
     log({ action: 'resolved', issue_id: i.id, message: `${i.id} resolved — 3 residents say it's gone` });
+    closeSandbox(i.id);
   }
   store.save();
   return i;
@@ -257,6 +266,7 @@ export function simulateDecay(days = 14) {
       i.resolved_at = new Date().toISOString();
       i.resolved_reason = 'decay_no_new_calls';
       resolved++;
+      closeSandbox(i.id);
     } else {
       i.tier += 1;
       if (i.status === 'flagged_for_review') { i.status = 'active'; i.flagged_for_review = false; }

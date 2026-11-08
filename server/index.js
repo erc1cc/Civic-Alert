@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as store from './store.js';
 import { CATEGORIES, TIER_COLORS } from './categories.js';
+import * as sandbox from './sandbox.js';
 import { OPEN, processReport, verify, approve, simulateDecay, summary, recentFeed } from './pipeline.js';
 
 const PORT = process.env.PORT || 3000;
@@ -89,7 +90,11 @@ app.get('/api/meta', (_req, res) => res.json({
 
 // ── Demo controls ──
 app.post('/api/simulate-decay', (req, res) => res.json(simulateDecay(Number(req.body?.days) || 14)));
-app.post('/api/reset', (_req, res) => { store.reset(); res.json({ ok: true, count: store.all().length }); });
+app.post('/api/reset', wrap(async (_req, res) => {
+  await sandbox.closeAll(); // before the data is wiped, so no case sandbox is orphaned
+  store.reset();
+  res.json({ ok: true, count: store.all().length });
+}));
 
 // ── Live updates (Server-Sent Events) ──
 app.get('/api/stream', (req, res) => {
@@ -118,4 +123,8 @@ if (fs.existsSync(dist)) {
   app.get(/^\/(?!api).*/, (_req, res) => res.sendFile(path.join(dist, 'index.html')));
 }
 
-app.listen(PORT, '0.0.0.0', () => console.log(`SD Voice Town Hall API on http://localhost:${PORT}`));
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`SD Voice Town Hall API on http://localhost:${PORT}`);
+  console.log(`Daytona per-case sandboxes: ${sandbox.enabled() ? 'ON' : 'off (set DAYTONA_API_KEY to enable)'}`);
+  sandbox.startSweeper();
+});
