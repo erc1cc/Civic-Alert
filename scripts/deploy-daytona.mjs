@@ -10,6 +10,8 @@
 //   FRESH=1              ignore the saved sandbox and create a new one
 //   RESET_DATA=1         wipe server/data/issues.json in the sandbox (back to the 35 seeded calls)
 //   ELEVENLABS_WEBHOOK_SECRET   passed to the server for signed post-call webhooks
+//   CASE_SANDBOXES=1     also turn on per-case sandboxes (server/sandbox.js) in the deployed app:
+//                        the server gets DAYTONA_API_KEY and opens one sandbox per live case
 
 import { Daytona } from '@daytona/sdk';
 import { execSync } from 'node:child_process';
@@ -39,6 +41,10 @@ if (!apiKey) fail('Set DAYTONA_API_KEY (create one at app.daytona.io → API Key
 const agentId = process.env.VITE_ELEVENLABS_AGENT_ID || clientEnv.VITE_ELEVENLABS_AGENT_ID || '';
 if (!agentId) console.warn('⚠ No VITE_ELEVENLABS_AGENT_ID found in client/.env: the call button will be disabled (the simulator still works).');
 const webhookSecret = process.env.ELEVENLABS_WEBHOOK_SECRET || rootEnv.ELEVENLABS_WEBHOOK_SECRET || '';
+const caseSandboxes = ['1', 'true', 'yes'].includes(String(process.env.CASE_SANDBOXES || rootEnv.CASE_SANDBOXES || '').toLowerCase());
+// The hosting sandbox gets its own label. server/sandbox.js sweeps sandboxes labelled
+// `app: sd-voice-town-hall` (one per case), and the host must never match that sweep.
+const HOST_LABEL = 'sd-voice-town-hall-host';
 
 // ── Files to ship: everything git knows about (tracked + new), minus ignored stuff like node_modules ──
 const files = execSync('git ls-files -co --exclude-standard', { cwd: ROOT, encoding: 'utf8' })
@@ -70,7 +76,7 @@ if (!sandbox) {
     language: 'typescript',
     public: true,            // judges + ElevenLabs webhooks can reach the preview URL without a token
     autoStopInterval: 0,     // don't fall asleep mid-demo
-    labels: { app: 'sd-voice-town-hall' },
+    labels: { app: HOST_LABEL },
   }, { timeout: 180 });
   fs.writeFileSync(ID_FILE, sandbox.id);
   console.log(`  Created ${sandbox.id} (saved to .daytona-sandbox)`);
@@ -106,9 +112,15 @@ if (build.exitCode !== 0) fail('Build failed in the sandbox (see output above).'
 
 // ── (Re)start the server in the background ──
 step('Starting the server…');
-const serverEnv = [`PORT=${PORT}`, webhookSecret && `ELEVENLABS_WEBHOOK_SECRET=${webhookSecret}`].filter(Boolean).join(' ');
+// Passed as the command's environment (not spliced into the command text) so secrets don't need shell quoting.
+const serverEnv = {
+  PORT: String(PORT),
+  ...(webhookSecret && { ELEVENLABS_WEBHOOK_SECRET: webhookSecret }),
+  ...(caseSandboxes ? { DAYTONA_API_KEY: apiKey } : { DISABLE_DAYTONA: '1' }),
+};
+console.log(`  Per-case sandboxes: ${caseSandboxes ? 'ON' : 'off (set CASE_SANDBOXES=1 to enable)'}`);
 await run("pkill -f 'node server/index.js' || true", { quiet: true });
-await run(`cd ${APP} && nohup env ${serverEnv} node server/index.js > server.log 2>&1 &`, { quiet: true, timeout: 30 });
+await run(`cd ${APP} && nohup node server/index.js > server.log 2>&1 &`, { quiet: true, env: serverEnv, timeout: 30 });
 
 let healthy = false;
 for (let i = 0; i < 20 && !healthy; i++) {

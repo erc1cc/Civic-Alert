@@ -14,6 +14,28 @@ For frontend development with hot reload, run `npm run dev:server` and `npm run 
 - Data lives in `server/data/issues.json`. It's created from `server/seed.js` (35 seeded calls) on first run. **↺ Reset** in the UI, or `POST /api/reset`, restores it.
 - Server env vars: `PORT`, `ELEVENLABS_WEBHOOK_SECRET` (optional HMAC check), `DISABLE_NOMINATIM=1` (offline: skip the OpenStreetMap geocoding fallback).
 
+## Deploy to Daytona (one command)
+1. Create an API key at **app.daytona.io → API Keys**, then `cp .env.example .env` and paste it in as `DAYTONA_API_KEY`.
+2. Make sure `client/.env` has your `VITE_ELEVENLABS_AGENT_ID`. The script bakes it into the build.
+3. Run:
+   ```bash
+   npm run deploy:daytona
+   ```
+   The script creates a **public** sandbox with auto-stop off, uploads the code, runs `npm install && npm run build`, starts the server on port 3000, and prints the public URL. The sandbox id is saved to `.daytona-sandbox`.
+4. Re-run the same command after any code change to redeploy to the same sandbox and URL. Options: `RESET_DATA=1` restores the 35 seeded calls, `FRESH=1` creates a brand-new sandbox.
+5. To also turn on per-case sandboxes (next section) in the deployed app, set `CASE_SANDBOXES=1` in `.env` and redeploy. The hosting sandbox is labelled `sd-voice-town-hall-host`, so the per-case cleanup sweep never touches it.
+6. Add the printed hostname to the ElevenLabs agent's allowlist. For the optional post-call webhook, use the printed webhook URL and put the secret in `.env` as `ELEVENLABS_WEBHOOK_SECRET`, then redeploy.
+
+## Per-case Daytona sandboxes
+
+Set `DAYTONA_API_KEY` and every live case gets its own [Daytona](https://www.daytona.io) sandbox (`server/sandbox.js`); without it the app runs exactly as before.
+
+- **Opens** when a case goes live: a new report, a PIN-reopened draft, or a merge into a case that has none. Preliminary drafts don't get one. Opening runs in the background, so it never slows a voice call. The sandbox starts with the case details in `case.json`, and its id is stored on the issue as `sandbox_id`.
+- **Closes (deleted)** when the case resolves (3 "it's gone" votes, or decay), and on **↺ Reset**.
+- **Safety nets:** sandboxes are ephemeral and auto-delete after `DAYTONA_IDLE_MINUTES` idle (default 60); a sweep at startup and every 15 min deletes sandboxes whose case is no longer live.
+- **Doing work in a case:** `const sb = await openCase(issue)` from `server/sandbox.js`, then use the SDK, e.g. `sb.process.executeCommand(...)`.
+- Env vars: `DAYTONA_API_KEY`, optional `DAYTONA_API_URL`, `DAYTONA_IDLE_MINUTES`, `DISABLE_DAYTONA=1`.
+
 ## Layout
 - `server/index.js`: Express routes, the SSE stream at `/api/stream`, and static hosting
 - `server/pipeline.js`: PIN reopen, preliminary drafts, hang-up handling, 800 m dedup with 40% radius shrinking, Tier 1 flagging, decay, and the executive summary
