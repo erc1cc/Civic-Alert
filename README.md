@@ -1,53 +1,126 @@
 # SD Voice Town Hall
 
-A sensorless civic issue reporting system and live Town Hall dashboard for San Diego. Residents call an ElevenLabs voice agent; the backend classifies each report, geocodes the landmarks the caller names, and clusters reports into hotspots.
+**Report a street problem in San Diego by talking. The map works out where it is.**
 
-## Run it
+Residents call an ElevenLabs voice agent and describe what's wrong and what's nearby ("a huge pothole at 7th and Market, by the parking garage"). There's no app, no account and no GPS. The backend classifies the report into one of the City's 23 *Get It Done* categories and turns the landmarks into a location with an honest uncertainty radius. It merges repeat reports of the same problem, so every extra caller tightens the pin. City staff see it all live on a map with a review queue for safety hazards.
+
+Built for UN SDGs 10 (reduced inequalities), 11 (sustainable cities) and 16 (strong institutions).
+
+## How a call becomes a pin
+
+![SD Voice Town Hall call flow](docs/civic_alert_actual_flow.svg)
+
+1. **Call.** The caller talks to the ElevenLabs agent from the live map's call button. A live transcript shows both sides of the conversation.
+2. **File.** As soon as the agent has a problem and any location clue, it runs the `submit_report` tool, which posts to the backend.
+3. **Classify + locate.** Keywords map the report to a Get It Done category and urgency tier. Cross streets and landmarks are matched against about 80 San Diego intersections, landmarks and streets, with OpenStreetMap as a fallback. The radius follows from the match: about 50 m for an intersection, 150–400 m for a landmark, 1 km for a street or neighborhood.
+4. **Merge or create.** If an open issue in the same category is within 800 m, the call is merged into it. The call count goes up, the pin moves toward the better-located report, and the radius **shrinks at least 40%**. Otherwise a new issue is created.
+5. **Review.** New Tier 1 safety hazards wait in the review queue until a person clicks **Approve for crew**.
+6. **Verify + decay.** Anyone can vote "still there / gone", and three "gone" votes resolve an issue. **Simulate 2 weeks** fast-forwards time with no new calls: quiet issues drop a tier, routine ones resolve on their own, and safety hazards are held.
+
+**Edge cases the pipeline handles:**
+
+- **Caller in a rush:** the report is saved as a *preliminary draft* (dashed, 1 km radius) and the agent reads out a 3-digit PIN.
+- **Caller returns with the PIN:** the draft reopens and snaps to a 60 m pinpoint.
+- **Caller hangs up mid-call:** the browser sends whatever was said, including the agent's read-backs. If there's a problem type and a location, the report is plotted with a wide 800 m radius.
+- **Same call reported twice** (in-call tool and post-call webhook): deduplicated by `conversation_id`.
+
+## Urgency tiers
+
+| Tier | Meaning | Color | Examples |
+|---|---|---|---|
+| 1 | Safety hazard (respond within hours) | 🟥 Red `#b42318` | Dark traffic signal, tree down, street flooding, car blocking a hydrant |
+| 2 | High urgency (1–3 days) | 🟧 Orange `#e8650f` | Pothole, street light out, illegal dumping, encampment, sidewalk trip hazard |
+| 3 | Medium (days to 2 weeks) | 🟨 Amber `#f6b93b` | Missed collection, overgrown vegetation, signal timing, parks |
+| 4 | Low / routine | 🟡 Yellow `#f9e36a` | 72-hour parking, street sweeping, graffiti |
+
+## The dashboard
+
+- **Landing page** (`/`) explains the idea.
+- **Live map** (`/map`):
+  - **Urgency pins** with uncertainty halos, or a **call heatmap**.
+  - **Category filters:** Roads & Signals, Sanitation & Dumping, Lighting & Parks, Preliminary Drafts.
+  - **Simulate 2 weeks** button.
+- **Sidebar:**
+  - The **call button**, with a live caller/agent transcript and a line showing how the report was filed.
+  - Headline stats and the **Needs review** queue.
+  - **Hotspots** (the most-called issue per field) and recent calls.
+  - **Reset** back to the 35 seeded issues.
+
+## Run it locally
+
 ```bash
 npm install
-npm run build        # installs + builds the React dashboard into client/dist
-npm start            # http://localhost:3000: API + dashboard on one port (works in Daytona)
+npm run build        # installs + builds the dashboard (frontend/) into frontend/dist
+npm start            # http://localhost:3000: API + dashboard on one port
 ```
-For frontend development with hot reload, run `npm run dev:server` and `npm run dev:client` in two terminals, then open http://localhost:5173 (Vite forwards `/api` to port 3000).
 
-- To enable live voice calls, copy `client/.env.example` to `client/.env`, set `VITE_ELEVENLABS_AGENT_ID` (see `agent/ELEVENLABS_SETUP.md`), and rebuild. Without it, use the **"No mic? Simulate a call"** panel.
-- Data lives in `server/data/issues.json`. It's created from `server/seed.js` (35 seeded calls) on first run. **↺ Reset** in the UI, or `POST /api/reset`, restores it.
-- Server env vars: `PORT`, `ELEVENLABS_WEBHOOK_SECRET` (optional HMAC check), `DISABLE_NOMINATIM=1` (offline: skip the OpenStreetMap geocoding fallback).
+For hot reload, run `npm run dev:server` and `npm run dev:client` in two terminals, then open http://localhost:5173. Vite forwards `/api` to port 3000.
+
+**Voice calls:** create the agent using [agent/ELEVENLABS_SETUP.md](agent/ELEVENLABS_SETUP.md). Put its id in `frontend/.env` as `VITE_ELEVENLABS_AGENT_ID=agent_…`, then rebuild. The id is baked in at build time. If the backend isn't running, the dashboard falls back to in-browser demo data (`data/issues.json`) with scripted sample calls.
+
+**Data:** the server stores issues in `server/data/issues.json`, created from `server/seed.js` (35 seeded calls around Downtown, North Park, Mission Valley and Pacific Beach). **Reset** in the sidebar, or `POST /api/reset`, restores it.
 
 ## Deploy to Daytona (one command)
-1. Create an API key at **app.daytona.io → API Keys**, then `cp .env.example .env` and paste it in as `DAYTONA_API_KEY`.
-2. Make sure `client/.env` has your `VITE_ELEVENLABS_AGENT_ID`. The script bakes it into the build.
+
+1. Create an API key at **app.daytona.io → API Keys**, copy `.env.example` to `.env`, and set `DAYTONA_API_KEY`.
+2. Make sure `frontend/.env` has your `VITE_ELEVENLABS_AGENT_ID`.
 3. Run:
    ```bash
    npm run deploy:daytona
    ```
-   The script creates a **public** sandbox with auto-stop off, uploads the code, runs `npm install && npm run build`, starts the server on port 3000, and prints the public URL. The sandbox id is saved to `.daytona-sandbox`.
-4. Re-run the same command after any code change to redeploy to the same sandbox and URL. Options: `RESET_DATA=1` restores the 35 seeded calls, `FRESH=1` creates a brand-new sandbox.
-5. To also turn on per-case sandboxes (next section) in the deployed app, set `CASE_SANDBOXES=1` in `.env` and redeploy. The hosting sandbox is labelled `sd-voice-town-hall-host`, so the per-case cleanup sweep never touches it.
-6. Add the printed hostname to the ElevenLabs agent's allowlist. For the optional post-call webhook, use the printed webhook URL and put the secret in `.env` as `ELEVENLABS_WEBHOOK_SECRET`, then redeploy.
+   This creates a **public** sandbox with auto-stop off, uploads the code, builds, starts the server on port 3000 and prints the public URL. The sandbox id is saved to `.daytona-sandbox`, so re-running redeploys to the same URL.
+4. Add the printed hostname to the ElevenLabs agent's **allowlist**.
 
-## Per-case Daytona sandboxes
+**Options:**
 
-Set `DAYTONA_API_KEY` and every live case gets its own [Daytona](https://www.daytona.io) sandbox (`server/sandbox.js`); without it the app runs exactly as before.
+- `RESET_DATA=1` restores the seeded issues.
+- `FRESH=1` creates a new sandbox.
+- `CASE_SANDBOXES=1` turns on per-case sandboxes (below).
+- `ELEVENLABS_WEBHOOK_SECRET` is passed to the server for the signed post-call webhook.
 
-- **Opens** when a case goes live: a new report, a PIN-reopened draft, or a merge into a case that has none. Preliminary drafts don't get one. Opening runs in the background, so it never slows a voice call. The sandbox starts with the case details in `case.json`, and its id is stored on the issue as `sandbox_id`.
-- **Closes (deleted)** when the case resolves (3 "it's gone" votes, or decay), and on **↺ Reset**.
-- **Safety nets:** sandboxes are ephemeral and auto-delete after `DAYTONA_IDLE_MINUTES` idle (default 60); a sweep at startup and every 15 min deletes sandboxes whose case is no longer live.
-- **Doing work in a case:** `const sb = await openCase(issue)` from `server/sandbox.js`, then use the SDK, e.g. `sb.process.executeCommand(...)`.
-- Env vars: `DAYTONA_API_KEY`, optional `DAYTONA_API_URL`, `DAYTONA_IDLE_MINUTES`, `DISABLE_DAYTONA=1`.
+### Per-case Daytona sandboxes (optional)
 
-## Layout
-- `server/index.js`: Express routes, the SSE stream at `/api/stream`, and static hosting
-- `server/pipeline.js`: PIN reopen, preliminary drafts, hang-up handling, 800 m dedup with 40% radius shrinking, Tier 1 flagging, decay, and the executive summary
-- `server/categories.js`: the 23 Get It Done categories, tiers, and the keyword classifier
-- `server/geocode.js`: San Diego landmark/intersection lookup, with Nominatim as a fallback
-- `agent/ELEVENLABS_SETUP.md`: voice agent prompt, client tool and webhook setup
-- `client/src`: React dashboard (`App.jsx`, `components/MapView.jsx`, `Sidebar.jsx`, `CallWidget.jsx`)
-- `scripts/deploy-daytona.mjs`: one-command Daytona deploy (Daytona TypeScript SDK)
-- `FRONTEND_PROMPT.md`: the spec the dashboard was built from
+With `DAYTONA_API_KEY` set on the server (`CASE_SANDBOXES=1` when deploying), every live case gets its own Daytona sandbox (`server/sandbox.js`):
 
-## Quick test
+- **Opened** in the background when a case goes live: a new report, a PIN-reopened draft, or a merge into a case without one. Its details go into `case.json`.
+- **Deleted** when the case resolves, and on reset.
+- **Cleaned up:** sandboxes are ephemeral, auto-delete after `DAYTONA_IDLE_MINUTES` idle (default 60), and a sweep removes leftovers every 15 minutes.
+
+The hosting sandbox is labelled `sd-voice-town-hall-host`, so the sweep never touches it. Without a key, all of this is a no-op.
+
+## API
+
+| Method | Path | What it does |
+|---|---|---|
+| `POST` | `/api/tools/submit-report` | File a report (the agent's tool, the hang-up fallback, tests). Returns `{ action, issue_id, pin_code, message }`; the agent speaks `message` |
+| `POST` | `/api/webhook/voice-report` | ElevenLabs post-call webhook (HMAC-checked when `ELEVENLABS_WEBHOOK_SECRET` is set) |
+| `GET` | `/api/issues` | Open issues (`?all=1` includes resolved) |
+| `POST` | `/api/issues/:id/verify` | `{ "still_there": true \| false }`; 3 × false resolves it |
+| `POST` | `/api/issues/:id/approve` | Approve a flagged hazard and forward it to the crew |
+| `POST` | `/api/simulate-decay` | Two weeks of silence; returns `{ downgraded, resolved, held, resolved_issues }` |
+| `POST` | `/api/reset` | Restore the 35 seeded issues |
+| `GET` | `/api/summary`, `/api/feed`, `/api/stream` | Executive summary, recent pipeline events, live updates (server-sent events) |
+
+Quick test:
+
 ```bash
 curl -X POST localhost:3000/api/tools/submit-report -H 'Content-Type: application/json' \
   -d '{"transcript":"another huge pothole at 7th and Market"}'
 ```
+
+## Repo layout
+
+| Path | What's there |
+|---|---|
+| `frontend/` | The dashboard: React 19, Vite, Tailwind v4, Leaflet + `leaflet.heat`, ElevenLabs React SDK |
+| `server/index.js` | Express routes, live update stream, serves `frontend/dist` |
+| `server/pipeline.js` | PIN drafts, hang-up handling, 800 m merge with radius shrinking, Tier 1 flagging, decay |
+| `server/categories.js` | The 23 Get It Done categories, tiers and keyword classifier |
+| `server/geocode.js` | San Diego landmark, intersection and street lookup, with Nominatim as a fallback |
+| `server/sandbox.js` | Per-case Daytona sandboxes |
+| `agent/ELEVENLABS_SETUP.md` | Agent prompt, `submit_report` tool definition, webhook setup |
+| `scripts/deploy-daytona.mjs` | One-command Daytona deploy |
+| `docs/` | The call-flow diagram |
+| `DESIGN.md`, `PRODUCT.md` | Design system and product notes for the dashboard |
+
+*Not affiliated with the City of San Diego. Urgency tiers follow the categories the City's Get It Done service uses.*
