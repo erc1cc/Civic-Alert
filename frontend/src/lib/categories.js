@@ -3,10 +3,12 @@
 // color = pin fill / badge, text = badge text (AA on color), edge = pin outline, halo = uncertainty ring.
 
 export const TIERS = {
+  // Tier 1 stays an alarming red. Tiers 2–4 step down through warm, calmer colors (orange → amber → yellow)
+  // so urgency still reads at a glance without everything looking like an emergency.
   1: { label: 'Tier 1', name: 'Safety Hazard', sla: 'Respond within hours', color: '#b42318', text: '#ffffff', edge: '#ffffff', halo: '#b42318' },
-  2: { label: 'Tier 2', name: 'High Urgency', sla: 'Respond in 1–3 days', color: '#1a1a1a', text: '#ffffff', edge: '#ffffff', halo: '#1a1a1a' },
-  3: { label: 'Tier 3', name: 'Medium Urgency', sla: 'Days to 2 weeks', color: '#6b6b67', text: '#ffffff', edge: '#ffffff', halo: '#6b6b67' },
-  4: { label: 'Tier 4', name: 'Low / Routine', sla: 'Routine scheduling', color: '#c8c8c2', text: '#1a1a1a', edge: '#6b6b67', halo: '#8a8a86' },
+  2: { label: 'Tier 2', name: 'High Urgency', sla: 'Respond in 1–3 days', color: '#e8650f', text: '#1a1a1a', edge: '#ffffff', halo: '#e8650f' },
+  3: { label: 'Tier 3', name: 'Medium Urgency', sla: 'Days to 2 weeks', color: '#f6b93b', text: '#1a1a1a', edge: '#ffffff', halo: '#e9a520' },
+  4: { label: 'Tier 4', name: 'Low / Routine', sla: 'Routine scheduling', color: '#f9e36a', text: '#1a1a1a', edge: '#b39012', halo: '#dcbc1c' },
 };
 
 export const CATEGORY_TIER = {
