@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-t1: #991b1b;
+  --color-t2: #ea580c;
+  --color-t3: #d97706;
+  --color-t4: #eab308;
+}
+
+html, body, #root { height: 100%; }
+body { margin: 0; background: #0b0f17; color: #e5e7eb; }
+
+/* Leaflet dark polish */
+.leaflet-container { background: #0b0f17; font-family: var(--font-sans); }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: #111827; color: #e5e7eb; border: 1px solid #1f2937;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+}
+.leaflet-popup-content { margin: 14px 16px; width: 290px !important; }
+.leaflet-container a.leaflet-popup-close-button { color: #9ca3af; }
+.leaflet-tooltip {
+  background: #111827; color: #f3f4f6; border: 1px solid #374151; border-radius: 8px;
+  font-weight: 600; font-size: 12px; box-shadow: 0 6px 18px rgba(0,0,0,.45);
+}
+.leaflet-tooltip-top:before { border-top-color: #374151; }
+.leaflet-control-attribution { background: rgba(11, 15, 23, 0.7) !important; color: #6b7280 !important; }
+.leaflet-control-attribution a { color: #9ca3af !important; }
+.leaflet-bar a { background: #111827; color: #e5e7eb; border-color: #1f2937; }
+.leaflet-bar a:hover { background: #1f2937; }
+
+/* Pulsing ring for Tier 1 hazards awaiting review */
+@keyframes ring {
+  0% { stroke-opacity: 0.9; stroke-width: 2; }
+  70% { stroke-opacity: 0; stroke-width: 18; }
+  100% { stroke-opacity: 0; stroke-width: 18; }
+}
+.pulse-ring { animation: ring 1.8s ease-out infinite; }
+
+/* Flash when an issue was just reported */
+@keyframes flash {
+  0%, 100% { stroke-opacity: 0; stroke-width: 0; }
+  30% { stroke-opacity: 0.55; stroke-width: 14; }
+}
+.flash-ring { animation: flash 1.2s ease-out 3; }
+
+@keyframes livedot { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+.live-dot { animation: livedot 1.4s ease-in-out infinite; }
+
+@keyframes toastin { from { transform: translateY(-8px); opacity: 0; } to { transform: none; opacity: 1; } }
+.toast-in { animation: toastin .25s ease-out; }
+
+.scroll-thin::-webkit-scrollbar { width: 6px; }
+.scroll-thin::-webkit-scrollbar-thumb { background: #1f2937; border-radius: 3px; }
