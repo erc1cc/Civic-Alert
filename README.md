@@ -36,8 +36,6 @@ Built for UN SDGs 10 (reduced inequalities), 11 (sustainable cities) and 16 (str
 
 ## The dashboard
 
-**Presenting it?** See [docs/DEMO_NOTES.md](docs/DEMO_NOTES.md): a tour of every tool on the map, a 3-minute demo flow, how the 2-week decay works, and technical notes for Q&A.
-
 
 - **Landing page** (`/`) explains the idea.
 - **Live map** (`/map`):
@@ -124,7 +122,7 @@ curl -X POST localhost:3000/api/tools/submit-report -H 'Content-Type: applicatio
 | `server/sandbox.js` | Per-case Daytona sandboxes |
 | `agent/ELEVENLABS_SETUP.md` | Agent prompt, `submit_report` tool definition, webhook setup |
 | `scripts/deploy-daytona.mjs` | One-command Daytona deploy |
-| `docs/` | The call-flow diagram and demo notes for presenters |
+| `docs/` | The call-flow diagram |
 | `DESIGN.md`, `PRODUCT.md` | Design system and product notes for the dashboard |
 
 *Not affiliated with the City of San Diego. Urgency tiers follow the categories the City's Get It Done service uses.*
