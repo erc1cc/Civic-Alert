@@ -312,7 +312,7 @@ export default function Sidebar({
         </summary>
         <div className="space-y-3 border-t border-dashed border-line-strong p-4">
           <p className="text-[14px] leading-relaxed text-ink-2">
-            <span className="text-ink">Simulate two weeks of silence.</span> Issues with no new calls drop one tier and Tier 4 issues resolve.
+            <span className="text-ink">Simulate two weeks of silence.</span> Issues with no new calls drop one tier, Tier 4 issues resolve, and safety hazards are held.
             Safety hazards and anything awaiting review are held.
           </p>
           <button
